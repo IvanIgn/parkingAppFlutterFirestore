@@ -8,7 +8,9 @@ abstract class VehicleEvent extends Equatable {
 }
 
 // Event to load all vehicles
-class LoadVehicles extends VehicleEvent {}
+class LoadVehicles extends VehicleEvent {
+  const LoadVehicles();
+}
 
 // Event to add a new vehicle
 class AddVehicle extends VehicleEvent {

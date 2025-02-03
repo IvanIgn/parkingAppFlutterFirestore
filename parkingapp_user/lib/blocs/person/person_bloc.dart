@@ -1,13 +1,16 @@
 import 'package:bloc/bloc.dart';
 import 'package:shared/shared.dart';
 import 'package:client_repositories/async_http_repos.dart';
+import 'package:equatable/equatable.dart';
 
 part 'person_event.dart';
 part 'person_state.dart';
 
 class PersonBloc extends Bloc<PersonEvent, PersonState> {
   List<Person> _personList = [];
-  PersonBloc() : super(PersonsInitial()) {
+  final PersonRepository repository;
+
+  PersonBloc({required this.repository}) : super(PersonsInitial()) {
     on<LoadPersons>((event, emit) async {
       await onLoadPersons(emit);
     });
@@ -25,60 +28,125 @@ class PersonBloc extends Bloc<PersonEvent, PersonState> {
     });
 
     on<UpdatePersons>((event, emit) async {
-      await onUpdatePerson(emit, event.person);
+      await onUpdatePerson(event, emit);
     });
   }
 
   Future<void> onLoadPersons(Emitter<PersonState> emit) async {
     emit(PersonsLoading());
     try {
-      _personList = await PersonRepository.instance.getAllPersons();
+      _personList = await repository.getAllPersons();
       emit(PersonsLoaded(persons: _personList));
     } catch (e) {
       emit(PersonsError(message: e.toString()));
     }
   }
 
-  Future<void> onLoadPersonsById(
-      Emitter<PersonState> emit, Person person) async {
-    emit(PersonsLoading());
+  // Future<void> onLoadPersonsById(
+  //     Emitter<PersonState> emit, Person person) async {
+  //   emit(PersonsLoading());
+  //   try {
+  //     final personById =
+  //         await PersonRepository.instance.getPersonById(person.id);
+  //     emit(PersonLoaded(person: personById));
+  //   } catch (e) {
+  //     emit(PersonsError(message: e.toString()));
+  //   }
+  // }
+
+  onLoadPersonsById(Emitter<PersonState> emit, Person person) async {
+    emit(PersonsLoading()); // Emit loading state first
     try {
-      final personById =
-          await PersonRepository.instance.getPersonById(person.id);
+      final personById = await repository.getPersonById(person.id);
       emit(PersonLoaded(person: personById));
+      print('Emitted PersonLoaded: $personById'); // Print state transition
     } catch (e) {
       emit(PersonsError(message: e.toString()));
     }
   }
+
+  // onCreatePerson(Emitter<PersonState> emit, Person person) async {
+  //   try {
+  //     // await PersonRepository.instance.createPerson(
+  //     //     Person(name: person.name, personNumber: person.personNumber));
+  //     await PersonRepository.instance.createPerson(person);
+
+  //     _personList = await PersonRepository.instance.getAllPersons();
+  //     emit(PersonsLoaded(persons: _personList));
+  //   } catch (e) {
+  //     emit(PersonsError(message: e.toString()));
+  //   }
+  // }
 
   onCreatePerson(Emitter<PersonState> emit, Person person) async {
     try {
-      await PersonRepository.instance.createPerson(
-          Person(name: person.name, personNumber: person.personNumber));
-
-      _personList = await PersonRepository.instance.getAllPersons();
-      emit(PersonsLoaded(persons: _personList));
+      await repository.createPerson(person); // Await person creation
+      _personList =
+          await repository.getAllPersons(); // Fetch updated list of persons
+      emit(PersonsLoaded(persons: _personList)); // Emit the updated list
     } catch (e) {
-      emit(PersonsError(message: e.toString()));
+      emit(PersonsError(message: e.toString())); // Handle error case
     }
   }
 
-  onUpdatePerson(Emitter<PersonState> emit, Person person) async {
+  // onUpdatePerson(Emitter<PersonState> emit, Person person) async {
+  //   try {
+  //     await PersonRepository.instance.updatePerson(person.id, person);
+
+  //     add(LoadPersonsById(person: person));
+  //   } catch (e) {
+  //     emit(PersonsError(message: e.toString()));
+  //   }
+  // }
+
+  // onUpdatePerson(Emitter<PersonState> emit, Person person) async {
+  //   try {
+  //     // Attempt to update the person
+  //     await repository.updatePerson(person.id, person);
+
+  //     // If successful, fetch the updated person and emit success state
+  //     final updatedPerson = await repository.getPersonById(person.id);
+  //     emit(PersonLoaded(person: updatedPerson));
+  //   } catch (e) {
+  //     // If an error occurs, directly emit error state without emitting loading first
+  //     emit(PersonsError(message: e.toString()));
+  //   }
+  // }
+
+  onUpdatePerson(
+    UpdatePersons event,
+    Emitter<PersonState> emit,
+  ) async {
+    emit(PersonsLoading()); // Always emit loading state first
     try {
-      await PersonRepository.instance.updatePerson(person.id, person);
-
-      add(LoadPersonsById(person: person));
+      await repository.updatePerson(event.person.id, event.person);
+      final updatedPerson = await repository.getPersonById(event.person.id);
+      emit(PersonLoaded(person: updatedPerson));
     } catch (e) {
-      emit(PersonsError(message: e.toString()));
+      emit(PersonsError(message: e.toString())); // Emit error if update fails
     }
   }
+
+  // onDeletePerson(Emitter<PersonState> emit, Person person) async {
+  //   try {
+  //     await PersonRepository.instance.deletePerson(person.id);
+
+  //     _personList = await PersonRepository.instance.getAllPersons();
+  //     emit(PersonsLoaded(persons: _personList));
+  //   } catch (e) {
+  //     emit(PersonsError(message: e.toString()));
+  //   }
+  // }
 
   onDeletePerson(Emitter<PersonState> emit, Person person) async {
     try {
-      await PersonRepository.instance.deletePerson(person.id);
+      print("Deleting person with id: ${person.id}");
+      await repository.deletePerson(person.id);
 
-      _personList = await PersonRepository.instance.getAllPersons();
-      emit(PersonsLoaded(persons: _personList));
+      final updatedPersons = await repository.getAllPersons();
+      print("Updated persons: $updatedPersons");
+
+      emit(PersonsLoaded(persons: updatedPersons));
     } catch (e) {
       emit(PersonsError(message: e.toString()));
     }

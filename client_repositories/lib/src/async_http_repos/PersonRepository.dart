@@ -78,6 +78,10 @@ class PersonRepository {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode(person.toJson()));
 
+    if (response.statusCode != 200) {
+        throw Exception('Failed to update person');
+    }
+
     final json = jsonDecode(response.body);
 
     return Person.fromJson(json);

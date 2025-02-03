@@ -20,6 +20,7 @@ class _VehicleManagementViewState extends State<VehicleManagementView> {
   String? loggedInPersonNum;
   String? loggedInPersonId;
   Vehicle? _selectedVehicle;
+  final VehicleRepository repository = VehicleRepository.instance;
 
   @override
   void initState() {
@@ -131,7 +132,7 @@ class _VehicleManagementViewState extends State<VehicleManagementView> {
               child: Text(
                 'Valt Fordon:\n'
                 'ID: ${_selectedVehicle!.id}\n'
-                'Registreringsnummer: ${_selectedVehicle!.regNumber}\n'
+                'Reg.nummer: ${_selectedVehicle!.regNumber}\n'
                 'Typ: ${_selectedVehicle!.vehicleType}',
                 textAlign: TextAlign.center,
                 style:
@@ -182,7 +183,7 @@ class _VehicleManagementViewState extends State<VehicleManagementView> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Registreringsnummer: ${vehicle.regNumber}',
+                              'Reg.nummer: ${vehicle.regNumber}',
                               style: const TextStyle(fontSize: 14),
                             ),
                             Text(
@@ -284,9 +285,106 @@ class _VehicleManagementViewState extends State<VehicleManagementView> {
     );
   }
 
+//   void _showAddVehicleDialog(BuildContext context) {
+//     final TextEditingController regNumberController = TextEditingController();
+//     String selectedVehicleType = 'Bil';
+
+//     showDialog(
+//       context: context,
+//       barrierDismissible: false,
+//       builder: (BuildContext context) {
+//         return StatefulBuilder(
+//           builder: (context, setState) {
+//             return AlertDialog(
+//               title: const Text("Skapa nytt fordon"),
+//               content: SingleChildScrollView(
+//                 child: Column(
+//                   mainAxisSize: MainAxisSize.min,
+//                   children: [
+//                     TextField(
+//                       controller: regNumberController,
+//                       decoration: const InputDecoration(
+//                         labelText: 'Reg.nummer',
+//                       ),
+//                     ),
+//                     DropdownButtonFormField<String>(
+//                       value: selectedVehicleType,
+//                       items: <String>[
+//                         'Bil',
+//                         'Lastbil',
+//                         'Motorcykel',
+//                         'Moped',
+//                         'Annat'
+//                       ].map((String value) {
+//                         return DropdownMenuItem<String>(
+//                           value: value,
+//                           child: Text(value),
+//                         );
+//                       }).toList(),
+//                       onChanged: (newValue) {
+//                         setState(() {
+//                           selectedVehicleType = newValue!;
+//                         });
+//                       },
+//                       decoration: const InputDecoration(
+//                         labelText: 'Fordonstyp',
+//                       ),
+//                     ),
+//                   ],
+//                 ),
+//               ),
+//               actions: [
+//                 TextButton(
+//                   onPressed: () {
+//                     Navigator.of(context).pop();
+//                   },
+//                   child: const Text("Avbryt"),
+//                 ),
+//                 ElevatedButton(
+//                   onPressed: () async {
+//                     final regNumber = regNumberController.text;
+
+//                     if (!_isValidRegNumber(regNumber)) {
+//                       ScaffoldMessenger.of(context).showSnackBar(
+//                         const SnackBar(
+//                           content: Text(
+//                               "Fordons registreringsnummmer måste vara av formatet XXX999."),
+//                           duration: Duration(seconds: 2),
+//                         ),
+//                       );
+//                       return;
+//                     }
+//                     // Get the next available parking ID
+// //final vehicles = await VehicleRepository.instance.getAllVehicles();
+//                     // final nextVehicleId = vehicles.isNotEmpty ? vehicles.last.id + 1 : 1;
+//                     final newVehicle = Vehicle(
+//                       // id: nextVehicleId,
+//                       regNumber: regNumber,
+//                       vehicleType: selectedVehicleType,
+//                       owner: Person(
+//                           name: loggedInName!,
+//                           personNumber: loggedInPersonNum!),
+//                     );
+
+//                     // Add new vehicle using VehicleBloc
+//                     BlocProvider.of<VehicleBloc>(context)
+//                         .add(CreateVehicle(vehicle: newVehicle));
+
+//                     Navigator.of(context).pop(); // Close the dialog
+//                   },
+//                   child: const Text("Spara"),
+//                 ),
+//               ],
+//             );
+//           },
+//         );
+//       },
+//     );
+//   }
   void _showAddVehicleDialog(BuildContext context) {
     final TextEditingController regNumberController = TextEditingController();
     String selectedVehicleType = 'Bil';
+    String errorMessage = ''; // Local error message to store validation errors
 
     showDialog(
       context: context,
@@ -302,8 +400,9 @@ class _VehicleManagementViewState extends State<VehicleManagementView> {
                   children: [
                     TextField(
                       controller: regNumberController,
-                      decoration: const InputDecoration(
-                        labelText: 'Registreringsnummer',
+                      decoration: InputDecoration(
+                        labelText: 'Reg.nummer',
+                        errorText: errorMessage.isEmpty ? null : errorMessage,
                       ),
                     ),
                     DropdownButtonFormField<String>(
@@ -343,17 +442,29 @@ class _VehicleManagementViewState extends State<VehicleManagementView> {
                   onPressed: () async {
                     final regNumber = regNumberController.text;
 
+                    // Check for valid registration number format
                     if (!_isValidRegNumber(regNumber)) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                              "Fordons registreringsnummmer måste vara av formatet XXX999."),
-                          duration: Duration(seconds: 2),
-                        ),
-                      );
+                      setState(() {
+                        errorMessage =
+                            "Fordons registreringsnummmer måste vara av formatet XXX999.";
+                      });
                       return;
                     }
 
+                    // final allVehicles = await VehicleRepository.instance.getAllVehicles();
+                    final allVehicles = await repository.getAllVehicles();
+                    final vehicleExists = allVehicles
+                        .any((vehicle) => vehicle.regNumber == regNumber);
+
+                    if (vehicleExists) {
+                      setState(() {
+                        errorMessage =
+                            'Fordon med detta reg.nummer finns redan';
+                      });
+                      return;
+                    }
+
+                    // No errors, create the new vehicle
                     final newVehicle = Vehicle(
                       regNumber: regNumber,
                       vehicleType: selectedVehicleType,
@@ -366,7 +477,8 @@ class _VehicleManagementViewState extends State<VehicleManagementView> {
                     BlocProvider.of<VehicleBloc>(context)
                         .add(CreateVehicle(vehicle: newVehicle));
 
-                    Navigator.of(context).pop(); // Close the dialog
+                    // Close the dialog
+                    Navigator.of(context).pop();
                   },
                   child: const Text("Spara"),
                 ),
@@ -378,10 +490,104 @@ class _VehicleManagementViewState extends State<VehicleManagementView> {
     );
   }
 
+  // void _showUpdateVehicleDialog(BuildContext context, Vehicle vehicle) {
+  //   final TextEditingController regNumberController =
+  //       TextEditingController(text: vehicle.regNumber);
+  //   String selectedVehicleType = vehicle.vehicleType;
+
+  //   showDialog(
+  //     context: context,
+  //     barrierDismissible: false,
+  //     builder: (BuildContext context) {
+  //       return StatefulBuilder(
+  //         builder: (context, setState) {
+  //           return AlertDialog(
+  //             title: const Text("Uppdatera fordon"),
+  //             content: SingleChildScrollView(
+  //               child: Column(
+  //                 mainAxisSize: MainAxisSize.min,
+  //                 children: [
+  //                   TextField(
+  //                     controller: regNumberController,
+  //                     decoration: const InputDecoration(
+  //                       labelText: 'Reg.nummer',
+  //                     ),
+  //                   ),
+  //                   DropdownButtonFormField<String>(
+  //                     value: selectedVehicleType,
+  //                     items: <String>[
+  //                       'Bil',
+  //                       'Lastbil',
+  //                       'Motorcykel',
+  //                       'Moped',
+  //                       'Annat'
+  //                     ].map((String value) {
+  //                       return DropdownMenuItem<String>(
+  //                         value: value,
+  //                         child: Text(value),
+  //                       );
+  //                     }).toList(),
+  //                     onChanged: (newValue) {
+  //                       setState(() {
+  //                         selectedVehicleType = newValue!;
+  //                       });
+  //                     },
+  //                     decoration: const InputDecoration(
+  //                       labelText: 'Fordonstyp',
+  //                     ),
+  //                   ),
+  //                 ],
+  //               ),
+  //             ),
+  //             actions: [
+  //               TextButton(
+  //                 onPressed: () {
+  //                   Navigator.of(context).pop();
+  //                 },
+  //                 child: const Text("Avbryt"),
+  //               ),
+  //               ElevatedButton(
+  //                 onPressed: () async {
+  //                   final regNumber = regNumberController.text;
+
+  //                   if (!_isValidRegNumber(regNumber)) {
+  //                     ScaffoldMessenger.of(context).showSnackBar(
+  //                       const SnackBar(
+  //                         content: Text(
+  //                             "Fordons registreringsnummmer måste vara av formatet XXX999."),
+  //                         duration: Duration(seconds: 2),
+  //                       ),
+  //                     );
+  //                     return;
+  //                   }
+
+  //                   final updatedVehicle = Vehicle(
+  //                       id: vehicle.id,
+  //                       regNumber: regNumber,
+  //                       vehicleType: selectedVehicleType,
+  //                       owner: vehicle.owner);
+
+  //                   // Update vehicle using VehicleBloc
+  //                   BlocProvider.of<VehicleBloc>(context)
+  //                       .add(UpdateVehicle(vehicle: updatedVehicle));
+
+  //                   Navigator.of(context).pop(); // Close the dialog
+  //                 },
+  //                 child: const Text("Spara"),
+  //               ),
+  //             ],
+  //           );
+  //         },
+  //       );
+  //     },
+  //   );
+  // }
+
   void _showUpdateVehicleDialog(BuildContext context, Vehicle vehicle) {
     final TextEditingController regNumberController =
         TextEditingController(text: vehicle.regNumber);
     String selectedVehicleType = vehicle.vehicleType;
+    String errorMessage = ''; // Local error message to store validation errors
 
     showDialog(
       context: context,
@@ -397,8 +603,9 @@ class _VehicleManagementViewState extends State<VehicleManagementView> {
                   children: [
                     TextField(
                       controller: regNumberController,
-                      decoration: const InputDecoration(
-                        labelText: 'Registreringsnummer',
+                      decoration: InputDecoration(
+                        labelText: 'Reg.nummer',
+                        errorText: errorMessage.isEmpty ? null : errorMessage,
                       ),
                     ),
                     DropdownButtonFormField<String>(
@@ -449,15 +656,29 @@ class _VehicleManagementViewState extends State<VehicleManagementView> {
                       return;
                     }
 
+                    // final allVehicles = await VehicleRepository.instance.getAllVehicles();
+                    final allVehicles = await repository.getAllVehicles();
+                    final vehicleExists = allVehicles
+                        .any((vehicle) => vehicle.regNumber == regNumber);
+
+                    if (vehicleExists) {
+                      setState(() {
+                        errorMessage =
+                            'Fordon med detta reg.nummer finns redan';
+                      });
+                      return;
+                    }
+
                     final updatedVehicle = Vehicle(
-                        id: vehicle.id,
-                        regNumber: regNumber,
-                        vehicleType: selectedVehicleType,
-                        owner: vehicle.owner);
+                      id: vehicle.id,
+                      regNumber: regNumber,
+                      vehicleType: selectedVehicleType,
+                      owner: vehicle.owner,
+                    );
 
                     // Update vehicle using VehicleBloc
                     BlocProvider.of<VehicleBloc>(context)
-                        .add(UpdateVehicles(vehicle: updatedVehicle));
+                        .add(UpdateVehicle(vehicle: updatedVehicle));
 
                     Navigator.of(context).pop(); // Close the dialog
                   },
@@ -491,7 +712,7 @@ class _VehicleManagementViewState extends State<VehicleManagementView> {
               onPressed: () {
                 // Delete vehicle using VehicleBloc
                 BlocProvider.of<VehicleBloc>(context)
-                    .add(DeleteVehicles(vehicle: vehicle));
+                    .add(DeleteVehicle(vehicle: vehicle));
 
                 Navigator.of(context).pop(); // Close the dialog
               },

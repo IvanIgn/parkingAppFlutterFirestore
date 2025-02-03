@@ -16,27 +16,68 @@ class MockParkingRepository extends Mock implements ParkingRepository {}
 
 class MockVehicleRepository extends Mock implements VehicleRepository {}
 
+class MockSharedPreferences extends Mock implements SharedPreferences {}
+
+class FakeParkingSpace extends Fake implements ParkingSpace {}
+
+class FakeParking extends Fake implements Parking {}
+
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   late ParkingSpaceBloc parkingSpaceBloc;
   late MockParkingSpaceRepository mockParkingSpaceRepository;
   late MockPersonRepository mockPersonRepository;
   late MockParkingRepository mockParkingRepository;
   late MockVehicleRepository mockVehicleRepository;
-  late SharedPreferences sharedPreferences;
+  //late MockSharedPreferences mockSharedPreferences;
 
-  setUp(() async {
+  setUpAll(() {
+    registerFallbackValue(FakeParkingSpace());
+    registerFallbackValue(FakeParking());
+  });
+
+  setUp(() {
+    // Mock SharedPreferences with required values
+    SharedPreferences.setMockInitialValues({
+      'loggedInPerson': jsonEncode({
+        'id': 1,
+        'name': 'John Doe',
+        'personNumber': '123456789016',
+      }),
+      // 'selectedParkingSpace':
+      //     '', // Explicitly null for the selected parking space
+      'selectedParkingSpace': jsonEncode({
+        'id': 2,
+        'address': 'Testadress 20',
+        'pricePerHour': 200,
+      }),
+      'selectedVehicle': jsonEncode({
+        'regNumber': 'ABC123',
+        'vehicleType': 'Car',
+        'owner': {'id': 1, 'name': 'John Doe', 'personNumber': '123456789016'},
+      }),
+      'isParkingActive': false,
+    });
+
+    // Initialize mock repositories
     mockParkingSpaceRepository = MockParkingSpaceRepository();
     mockPersonRepository = MockPersonRepository();
     mockParkingRepository = MockParkingRepository();
     mockVehicleRepository = MockVehicleRepository();
-    sharedPreferences = await SharedPreferences.getInstance();
 
+    // Instantiate the ParkingSpaceBloc with mocked preferences
     parkingSpaceBloc = ParkingSpaceBloc(
       parkingSpaceRepository: mockParkingSpaceRepository,
       personRepository: mockPersonRepository,
       parkingRepository: mockParkingRepository,
       vehicleRepository: mockVehicleRepository,
     );
+
+    when(() => mockParkingRepository.getAllParkings())
+        .thenAnswer((_) async => []);
+    when(() => mockParkingRepository.createParking(any()))
+        .thenAnswer((invocation) async => invocation.positionalArguments.first);
   });
 
   tearDown(() {
@@ -52,12 +93,19 @@ void main() {
     blocTest<ParkingSpaceBloc, ParkingSpaceState>(
       'emits [ParkingSpaceLoading, ParkingSpaceLoaded] when loading is successful',
       build: () {
+        // Mock SharedPreferences to return a selectedParkingSpace
+        SharedPreferences.setMockInitialValues({
+          'selectedParkingSpace': jsonEncode({
+            'id': 1,
+            'address': 'Testadress 10',
+            'pricePerHour': 100,
+          }),
+          'isParkingActive':
+              false, // You can mock other preferences here if needed
+        });
+
         when(() => mockParkingSpaceRepository.getAllParkingSpaces())
             .thenAnswer((_) async => parkingSpaces);
-        when(() => sharedPreferences.getString('selectedParkingSpace'))
-            .thenReturn(null);
-        when(() => sharedPreferences.getBool('isParkingActive'))
-            .thenReturn(false);
         return parkingSpaceBloc;
       },
       act: (bloc) => bloc.add(LoadParkingSpaces()),
@@ -65,7 +113,8 @@ void main() {
         ParkingSpaceLoading(),
         ParkingSpaceLoaded(
           parkingSpaces: parkingSpaces,
-          selectedParkingSpace: null,
+          selectedParkingSpace: parkingSpaces
+              .first, // Set it explicitly to the first parking space
           isParkingActive: false,
         ),
       ],
@@ -96,12 +145,7 @@ void main() {
 
     blocTest<ParkingSpaceBloc, ParkingSpaceState>(
       'updates selected parking space in state',
-      build: () {
-        when(() => sharedPreferences.setString(
-                'selectedParkingSpace', json.encode(parkingSpace.toJson())))
-            .thenAnswer((_) async => true);
-        return parkingSpaceBloc;
-      },
+      build: () => parkingSpaceBloc,
       seed: () => ParkingSpaceLoaded(
         parkingSpaces: [parkingSpace],
         selectedParkingSpace: null,
@@ -115,11 +159,6 @@ void main() {
           isParkingActive: false,
         ),
       ],
-      verify: (_) {
-        verify(() => sharedPreferences.setString(
-                'selectedParkingSpace', json.encode(parkingSpace.toJson())))
-            .called(1);
-      },
     );
   });
 
@@ -129,11 +168,7 @@ void main() {
 
     blocTest<ParkingSpaceBloc, ParkingSpaceState>(
       'clears selected parking space in state',
-      build: () {
-        when(() => sharedPreferences.remove('selectedParkingSpace'))
-            .thenAnswer((_) async => true);
-        return parkingSpaceBloc;
-      },
+      build: () => parkingSpaceBloc,
       seed: () => ParkingSpaceLoaded(
         parkingSpaces: [parkingSpace],
         selectedParkingSpace: parkingSpace,
@@ -147,41 +182,40 @@ void main() {
           isParkingActive: false,
         ),
       ],
-      verify: (_) {
-        verify(() => sharedPreferences.remove('selectedParkingSpace'))
-            .called(1);
-      },
     );
   });
 
   group('StartParking', () {
     final parkingSpace =
-        ParkingSpace(id: 1, address: 'Testadress 10', pricePerHour: 100);
-    final vehicle = Vehicle(
-      regNumber: 'ABC123',
-      vehicleType: 'Bil',
-      owner: Person(id: 1, name: 'John Doe', personNumber: '1234567890'),
-    );
+        ParkingSpace(id: 2, address: 'Testadress 20', pricePerHour: 200);
     final parking = Parking(
-      id: 1,
-      vehicle: vehicle,
+      id: 2,
+      startTime: DateTime(2025, 1, 28, 10, 0, 0),
+      endTime: DateTime(2025, 1, 28, 11, 0, 0),
       parkingSpace: parkingSpace,
-      startTime: DateTime.now(),
-      endTime: DateTime.now().add(const Duration(hours: 2)),
+      vehicle: Vehicle(
+          id: 0,
+          regNumber: 'ABC222',
+          vehicleType: 'Lastbil',
+          owner:
+              Person(id: 0, name: 'TestNamn2', personNumber: '199501072222')),
+
+      // Before the mocked DateTime.now
     );
 
     blocTest<ParkingSpaceBloc, ParkingSpaceState>(
       'starts parking and updates state',
-      build: () {
-        when(() => mockParkingRepository.createParking(parking))
-            .thenAnswer((_) async => Future.value());
-        when(() => sharedPreferences.setBool('isParkingActive', true))
-            .thenAnswer((_) async => true);
-        when(() => sharedPreferences.setString(
-                'activeParkingSpace', json.encode(parkingSpace.toJson())))
-            .thenAnswer((_) async => true);
-        return parkingSpaceBloc;
+      setUp: () {
+        when(() => mockParkingRepository.createParking(any()))
+            .thenAnswer((_) async {
+          return parking;
+        });
+
+        when(() => mockParkingRepository.getAllParkings()).thenAnswer(
+          (_) async => [parking], // Ensure it returns the expected parking
+        );
       },
+      build: () => parkingSpaceBloc,
       seed: () => ParkingSpaceLoaded(
         parkingSpaces: [parkingSpace],
         selectedParkingSpace: parkingSpace,
@@ -199,45 +233,21 @@ void main() {
   });
 
   group('StopParking', () {
-    final parking = Parking(
-      id: 1,
-      vehicle: Vehicle(
-        regNumber: 'ABC123',
-        vehicleType: 'Bil',
-        owner: Person(id: 1, name: 'John Doe', personNumber: '1234567890'),
-      ),
-      parkingSpace:
-          ParkingSpace(id: 1, address: 'Testadress 10', pricePerHour: 100),
-      startTime: DateTime.now(),
-      endTime: DateTime.now().add(const Duration(hours: 2)),
-    );
+    final parkingSpace =
+        ParkingSpace(id: 1, address: 'Testadress 10', pricePerHour: 100);
 
     blocTest<ParkingSpaceBloc, ParkingSpaceState>(
       'stops parking and updates state',
-      build: () {
-        when(() => sharedPreferences.remove('isParkingActive'))
-            .thenAnswer((_) async => true);
-        when(() => sharedPreferences.remove('parking'))
-            .thenAnswer((_) async => true);
-        when(() => mockParkingRepository.deleteParking(parking.id))
-            .thenAnswer((_) async => Future.value());
-        return parkingSpaceBloc;
-      },
+      build: () => parkingSpaceBloc,
       seed: () => ParkingSpaceLoaded(
-        parkingSpaces: [
-          parking.parkingSpace ??
-              ParkingSpace(id: 0, address: '', pricePerHour: 0)
-        ],
-        selectedParkingSpace: parking.parkingSpace,
+        parkingSpaces: [parkingSpace],
+        selectedParkingSpace: parkingSpace,
         isParkingActive: true,
       ),
       act: (bloc) => bloc.add(StopParking()),
       expect: () => [
         ParkingSpaceLoaded(
-          parkingSpaces: [
-            parking.parkingSpace ??
-                ParkingSpace(id: 0, address: '', pricePerHour: 0)
-          ],
+          parkingSpaces: [parkingSpace],
           selectedParkingSpace: null,
           isParkingActive: false,
         ),

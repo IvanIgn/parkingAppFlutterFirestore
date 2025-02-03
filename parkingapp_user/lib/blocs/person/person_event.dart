@@ -1,29 +1,46 @@
 part of 'person_bloc.dart';
 
-sealed class PersonEvent {}
+sealed class PersonEvent extends Equatable {
+  const PersonEvent(); // Ensure const constructors for immutability
+
+  @override
+  List<Object?> get props => [];
+}
 
 class LoadPersons extends PersonEvent {}
 
 class LoadPersonsById extends PersonEvent {
   final Person person;
 
-  LoadPersonsById({required this.person});
+  const LoadPersonsById({required this.person});
+
+  @override
+  List<Object?> get props => [person]; // Compare based on the person
 }
 
 class CreatePerson extends PersonEvent {
   final Person person;
 
-  CreatePerson({required this.person});
+  const CreatePerson({required this.person});
+
+  @override
+  List<Object?> get props => [person]; // Compare based on the person
 }
 
 class UpdatePersons extends PersonEvent {
   final Person person;
 
-  UpdatePersons({required this.person});
+  const UpdatePersons({required this.person});
+
+  @override
+  List<Object?> get props => [person]; // Compare based on the person
 }
 
 class DeletePersons extends PersonEvent {
   final Person person;
 
-  DeletePersons({required this.person});
+  const DeletePersons({required this.person});
+
+  @override
+  List<Object?> get props => [person]; // Compare based on the person
 }

@@ -7,7 +7,9 @@ abstract class ParkingSpaceEvent extends Equatable {
   List<Object> get props => [];
 }
 
-class LoadParkingSpaces extends ParkingSpaceEvent {}
+class LoadParkingSpaces extends ParkingSpaceEvent {
+  const LoadParkingSpaces();
+}
 
 class AddParkingSpace extends ParkingSpaceEvent {
   final ParkingSpace parkingSpace;

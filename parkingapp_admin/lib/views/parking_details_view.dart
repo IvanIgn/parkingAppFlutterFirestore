@@ -29,7 +29,7 @@ class ParkingDetailsView extends StatelessWidget {
             buildSectionTitle(context, 'Fordonsinformation:'),
             const SizedBox(height: 8),
             buildKeyValue('Fordons ID', parking.vehicle!.id.toString()),
-            buildKeyValue('Registreringsnummer', parking.vehicle!.regNumber),
+            buildKeyValue('Reg.nummer', parking.vehicle!.regNumber),
             buildKeyValue('Fordonstyp', parking.vehicle!.vehicleType),
             const SizedBox(height: 16),
             buildSectionTitle(context, 'Ägareinformation:'),

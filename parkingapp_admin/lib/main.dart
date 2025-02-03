@@ -61,13 +61,13 @@ class ParkingAdminApp extends StatelessWidget {
     return [
       BlocProvider<PersonBloc>(
         create: (_) =>
-            PersonBloc(repository: personRepository)..add(FetchPersonsEvent()),
+            PersonBloc(repository: personRepository)..add(const FetchPersonsEvent()),
       ),
       // BlocProvider<PersonBloc>(
       //   create: (_) => PersonBloc()..add(FetchPersonsEvent()),
       // ),
       BlocProvider<VehicleBloc>(
-        create: (_) => VehicleBloc(vehicleRepository)..add(LoadVehicles()),
+        create: (_) => VehicleBloc(vehicleRepository)..add(const LoadVehicles()),
       ),
       BlocProvider<ParkingsBloc>(
         create: (_) => ParkingsBloc(parkingRepository: parkingRepository)
@@ -75,7 +75,7 @@ class ParkingAdminApp extends StatelessWidget {
       ),
       BlocProvider<ParkingSpaceBloc>(
         create: (_) =>
-            ParkingSpaceBloc(parkingSpaceRepository)..add(LoadParkingSpaces()),
+            ParkingSpaceBloc(parkingSpaceRepository)..add(const LoadParkingSpaces()),
       ),
       Provider<ParkingSpaceRepository>(
         create: (_) => parkingSpaceRepository,

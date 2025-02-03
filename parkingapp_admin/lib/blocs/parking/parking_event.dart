@@ -4,7 +4,9 @@ part of 'parking_bloc.dart';
 
 abstract class MonitorParkingsEvent {}
 
-class LoadParkingsEvent extends MonitorParkingsEvent {}
+class LoadParkingsEvent extends MonitorParkingsEvent {
+  LoadParkingsEvent();
+}
 
 class AddParkingEvent extends MonitorParkingsEvent {
   final Parking parking;

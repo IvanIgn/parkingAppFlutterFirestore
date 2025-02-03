@@ -7,8 +7,23 @@ import 'package:intl/intl.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:parkingapp_admin/blocs/parking/parking_bloc.dart';
 
-class MonitorParkingsView extends StatelessWidget {
+class MonitorParkingsView extends StatefulWidget {
   const MonitorParkingsView({super.key});
+
+  @override
+  _ManageMonitorParkingViewState createState() =>
+      _ManageMonitorParkingViewState();
+}
+
+class _ManageMonitorParkingViewState extends State<MonitorParkingsView> {
+  @override
+  void initState() {
+    super.initState();
+    // Trigger fetching persons when the view is opened
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ParkingsBloc>().add(LoadParkingsEvent());
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +79,7 @@ class MonitorParkingsView extends StatelessWidget {
                         style: const TextStyle(fontSize: 14),
                       ),
                       Text(
-                        'Fordons nummer: ${parking.vehicle!.regNumber}',
+                        'Reg.nummer: ${parking.vehicle!.regNumber}',
                         style: const TextStyle(fontSize: 14),
                       ),
                       Text(

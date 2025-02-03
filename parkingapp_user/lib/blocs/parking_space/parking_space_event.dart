@@ -1,22 +1,28 @@
 part of 'parking_space_bloc.dart';
 
-abstract class ParkingSpaceEvent {}
+abstract class ParkingSpaceEvent extends Equatable {
+  const ParkingSpaceEvent();
+
+  @override
+  List<Object?> get props => [];
+}
 
 class LoadParkingSpaces extends ParkingSpaceEvent {}
 
 class SelectParkingSpace extends ParkingSpaceEvent {
   final ParkingSpace parkingSpace;
-  SelectParkingSpace(this.parkingSpace);
+
+  const SelectParkingSpace(this.parkingSpace);
+
+  @override
+  List<Object?> get props => [parkingSpace];
 }
 
 class StartParking extends ParkingSpaceEvent {}
 
 class StopParking extends ParkingSpaceEvent {}
 
-class DeselectParkingSpace extends ParkingSpaceEvent {
-  //final ParkingSpace parkingSpace;
-  // DeselectParkingSpace(this.parkingSpace);
-}
+class DeselectParkingSpace extends ParkingSpaceEvent {}
 
 // class CreateParkingSpace extends ParkingSpaceEvent {
 //   final ParkingSpace parkingSpace;

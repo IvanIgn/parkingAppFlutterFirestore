@@ -4,10 +4,127 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared/shared.dart';
 import 'package:parkingapp_admin/blocs/vehicle/vehicle_bloc.dart';
 
-// THIS CLASS WORKS
-
-class ManageVehiclesView extends StatelessWidget {
+class ManageVehiclesView extends StatefulWidget {
   const ManageVehiclesView({super.key});
+
+  @override
+  _ManageVehiclesViewState createState() => _ManageVehiclesViewState();
+}
+
+class _ManageVehiclesViewState extends State<ManageVehiclesView> {
+  @override
+  void initState() {
+    super.initState();
+    // Fetch vehicles when the view is opened
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<VehicleBloc>().add(const LoadVehicles());
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("Hantera fordon"),
+      ),
+      body: BlocBuilder<VehicleBloc, VehicleState>(
+        builder: (context, state) {
+          if (state is VehicleLoading) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (state is VehicleError) {
+            return Center(
+              child: Text(
+                'Fel vid hämtning av data: ${state.message}',
+                style: const TextStyle(color: Colors.red, fontSize: 16),
+              ),
+            );
+          } else if (state is VehicleLoaded) {
+            final vehiclesList = state.vehicles;
+
+            if (vehiclesList.isEmpty) {
+              return const Center(
+                child: Text(
+                  'Inga fordon tillgängliga.',
+                  style: TextStyle(fontSize: 16),
+                ),
+              );
+            }
+
+            return ListView.separated(
+              padding: const EdgeInsets.all(16.0),
+              itemCount: vehiclesList.length,
+              itemBuilder: (context, index) {
+                final vehicle = vehiclesList[index];
+                return ListTile(
+                  title: Text(
+                    'Fordon ID: ${vehicle.id}',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Reg.nummer: ${vehicle.regNumber}',
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                      Text(
+                        'Fordonstyp: ${vehicle.vehicleType}',
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                      if (vehicle.owner != null)
+                        Text(
+                          'Ägare: ${vehicle.owner?.name}, Personnummer: ${vehicle.owner?.personNumber}',
+                          style: const TextStyle(fontSize: 14),
+                        )
+                      else
+                        const Text(
+                          'Ingen ägare',
+                          style: TextStyle(fontSize: 14),
+                        ),
+                    ],
+                  ),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit, color: Colors.blue),
+                        onPressed: () {
+                          _showEditVehicleDialog(context, vehicle);
+                        },
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete, color: Colors.red),
+                        onPressed: () {
+                          _showDeleteConfirmationDialog(context, vehicle);
+                        },
+                      ),
+                    ],
+                  ),
+                );
+              },
+              separatorBuilder: (context, index) {
+                return const Divider(
+                  thickness: 1,
+                  color: Colors.black87,
+                );
+              },
+            );
+          } else {
+            return const SizedBox.shrink();
+          }
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          _showAddVehicleDialog(context);
+        },
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
 
   void _showAddVehicleDialog(BuildContext context) {
     final TextEditingController regNumberController = TextEditingController();
@@ -288,110 +405,5 @@ class ManageVehiclesView extends StatelessWidget {
   bool _isValidRegNumber(String regNumber) {
     final regExp = RegExp(r'^[A-Z]{3}[0-9]{3}$');
     return regExp.hasMatch(regNumber);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Hantera fordon"),
-      ),
-      body: BlocBuilder<VehicleBloc, VehicleState>(
-        builder: (context, state) {
-          if (state is VehicleLoading) {
-            return const Center(child: CircularProgressIndicator());
-          } else if (state is VehicleError) {
-            return Center(
-              child: Text(
-                'Fel vid hämtning av data: ${state.message}',
-                style: const TextStyle(color: Colors.red, fontSize: 16),
-              ),
-            );
-          } else if (state is VehicleLoaded) {
-            final vehiclesList = state.vehicles;
-
-            if (vehiclesList.isEmpty) {
-              return const Center(
-                child: Text(
-                  'Inga fordon tillgängliga.',
-                  style: TextStyle(fontSize: 16),
-                ),
-              );
-            }
-
-            return ListView.separated(
-              padding: const EdgeInsets.all(16.0),
-              itemCount: vehiclesList.length,
-              itemBuilder: (context, index) {
-                final vehicle = vehiclesList[index];
-                return ListTile(
-                  title: Text(
-                    'Fordon ID: ${vehicle.id}',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  subtitle: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Registreringsnummer: ${vehicle.regNumber}',
-                        style: const TextStyle(fontSize: 14),
-                      ),
-                      Text(
-                        'Fordonstyp: ${vehicle.vehicleType}',
-                        style: const TextStyle(fontSize: 14),
-                      ),
-                      if (vehicle.owner != null)
-                        Text(
-                          'Ägare: ${vehicle.owner?.name}, Personnummer: ${vehicle.owner?.personNumber}',
-                          style: const TextStyle(fontSize: 14),
-                        )
-                      else
-                        const Text(
-                          'Ingen ägare',
-                          style: TextStyle(fontSize: 14),
-                        ),
-                    ],
-                  ),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.edit, color: Colors.blue),
-                        onPressed: () {
-                          _showEditVehicleDialog(context, vehicle);
-                        },
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () {
-                          _showDeleteConfirmationDialog(context, vehicle);
-                        },
-                      ),
-                    ],
-                  ),
-                );
-              },
-              separatorBuilder: (context, index) {
-                return const Divider(
-                  thickness: 1,
-                  color: Colors.black87,
-                );
-              },
-            );
-          } else {
-            return const SizedBox.shrink();
-          }
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _showAddVehicleDialog(context);
-        },
-        child: const Icon(Icons.add),
-      ),
-    );
   }
 }

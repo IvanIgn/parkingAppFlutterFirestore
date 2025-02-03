@@ -3,8 +3,23 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:parkingapp_admin/blocs/parking_space/parking_space_bloc.dart';
 import 'package:shared/shared.dart';
 
-class ManageParkingSpacesView extends StatelessWidget {
+class ManageParkingSpacesView extends StatefulWidget {
   const ManageParkingSpacesView({super.key});
+
+  @override
+  _ManageParkingSpacesViewState createState() =>
+      _ManageParkingSpacesViewState();
+}
+
+class _ManageParkingSpacesViewState extends State<ManageParkingSpacesView> {
+  @override
+  void initState() {
+    super.initState();
+    // Trigger fetching persons when the view is opened
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ParkingSpaceBloc>().add(const LoadParkingSpaces());
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

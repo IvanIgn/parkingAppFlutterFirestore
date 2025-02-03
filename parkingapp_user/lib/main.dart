@@ -26,16 +26,21 @@ void main() async {
   final personRepository = PersonRepository.instance;
   final parkingSpaceRepository = ParkingSpaceRepository.instance;
   final parkingRepository = ParkingRepository.instance;
+  final vehicleRepository = VehicleRepository.instance;
 
   runApp(
     MultiBlocProvider(
       providers: [
         BlocProvider<PersonBloc>(
-            create: (context) => PersonBloc()..add(LoadPersons())),
+            create: (context) =>
+                PersonBloc(repository: personRepository)..add(LoadPersons())),
         BlocProvider<VehicleBloc>(
-            create: (context) => VehicleBloc()..add(LoadVehicles())),
+            create: (context) =>
+                VehicleBloc(vehicleRepository)..add(LoadVehicles())),
         BlocProvider<ParkingBloc>(
-            create: (context) => ParkingBloc()..add(LoadActiveParkings())),
+            create: (context) => ParkingBloc(
+                parkingRepository: parkingRepository, sharedPreferences: prefs)
+              ..add(LoadActiveParkings())),
         BlocProvider<ParkingSpaceBloc>(
           create: (context) => ParkingSpaceBloc(
               parkingSpaceRepository: parkingSpaceRepository,
@@ -45,8 +50,9 @@ void main() async {
             ..add(LoadParkingSpaces()),
         ),
         BlocProvider<RegistrationBloc>(
-          create: (context) =>
-              RegistrationBloc(), // Dispatch CheckAuthStatus event here
+          create: (context) => RegistrationBloc(
+              personRepository:
+                  personRepository), // Dispatch CheckAuthStatus event here
         ),
         BlocProvider<AuthBloc>(
           create: (context) => AuthBloc(personRepository: personRepository)

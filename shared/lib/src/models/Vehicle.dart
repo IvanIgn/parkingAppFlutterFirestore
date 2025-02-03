@@ -58,6 +58,21 @@ class Vehicle extends Equatable {
     };
   }
 
+  // `copyWith` method to allow modification of specific fields
+  Vehicle copyWith({
+    int? id,
+    String? regNumber,
+    String? vehicleType,
+    Person? owner,
+  }) {
+    return Vehicle(
+      id: id ?? this.id,
+      regNumber: regNumber ?? this.regNumber,
+      vehicleType: vehicleType ?? this.vehicleType,
+      owner: owner ?? this.owner,
+    );
+  }
+
   @override
   List<Object?> get props => [id, regNumber, vehicleType, owner];
 }

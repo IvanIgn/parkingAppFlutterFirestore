@@ -77,7 +77,7 @@ class _OverviewStatisticsViewState extends State<OverviewStatisticsView> {
               ),
               if (parking.vehicle != null)
                 Text(
-                  'Registreringsnummer: ${parking.vehicle!.regNumber}',
+                  'Reg.nummer: ${parking.vehicle!.regNumber}',
                   style: const TextStyle(fontSize: 14),
                 ),
               if (parking.parkingSpace != null)

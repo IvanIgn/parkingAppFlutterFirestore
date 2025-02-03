@@ -145,10 +145,10 @@ class _OverviewViewState extends State<OverviewView> {
   void initState() {
     super.initState();
     _loadParkingData();
+    // _refreshParkings();
   }
 
   Future<void> _loadParkingData() async {
-    // Dispatch event to load active parkings from ParkingBloc
     context.read<ParkingBloc>().add(LoadActiveParkings());
   }
 
@@ -156,7 +156,7 @@ class _OverviewViewState extends State<OverviewView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Overview"),
+        title: const Text("Översikt"),
       ),
       body: BlocBuilder<ParkingBloc, ParkingState>(
         builder: (context, state) {
@@ -174,7 +174,7 @@ class _OverviewViewState extends State<OverviewView> {
                         Icon(Icons.info_outline, size: 50, color: Colors.grey),
                         SizedBox(height: 16),
                         Text(
-                          'No active parking data found.',
+                          'Inga aktiva parkeringar tillgängliga.',
                           textAlign: TextAlign.center,
                           style: TextStyle(fontSize: 16, color: Colors.grey),
                         ),
@@ -203,8 +203,8 @@ class _OverviewViewState extends State<OverviewView> {
                         const SizedBox(height: 8),
                         buildKeyValue('Fordons ID',
                             parkingInstance.vehicle!.id.toString()),
-                        buildKeyValue('Registreringsnummer',
-                            parkingInstance.vehicle!.regNumber),
+                        buildKeyValue(
+                            'Reg.nummer', parkingInstance.vehicle!.regNumber),
                         buildKeyValue(
                             'Fordonstyp', parkingInstance.vehicle!.vehicleType),
                         const SizedBox(height: 16),
@@ -225,10 +225,8 @@ class _OverviewViewState extends State<OverviewView> {
                             parkingInstance.parkingSpace!.id.toString()),
                         buildKeyValue(
                             'Address', parkingInstance.parkingSpace!.address),
-                        buildKeyValue(
-                            'Pris per timme',
-                            parkingInstance.parkingSpace!.pricePerHour
-                                .toString()),
+                        buildKeyValue('Pris per timme',
+                            '${parkingInstance.parkingSpace!.pricePerHour} SEK'),
                       ],
                     ),
                   );
@@ -245,6 +243,13 @@ class _OverviewViewState extends State<OverviewView> {
       ),
     );
   }
+
+  // void _refreshParkings() {
+  //   // if (parkingInstance?.vehicle?.owner != null) {
+  //   BlocProvider.of<ParkingBloc>(context).add(
+  //       LoadActiveParkings()); // Dispatch event to load active parkings from ParkingBloc
+  //   //s }
+  // }
 
   Widget buildSectionTitle(BuildContext context, String title) {
     return Text(

@@ -36,7 +36,7 @@ void main() {
             [ParkingSpace(id: 1, address: 'Testadress 10', pricePerHour: 100)]);
         return parkingSpaceBloc;
       },
-      act: (bloc) => bloc.add(LoadParkingSpaces()),
+      act: (bloc) => bloc.add(const LoadParkingSpaces()),
       expect: () => [
         ParkingSpaceLoading(),
         ParkingSpaceLoaded([
@@ -55,7 +55,7 @@ void main() {
             .thenThrow(Exception('Failed to fetch parking spaces'));
         return parkingSpaceBloc;
       },
-      act: (bloc) => bloc.add(LoadParkingSpaces()),
+      act: (bloc) => bloc.add(const LoadParkingSpaces()),
       expect: () => [
         ParkingSpaceLoading(),
         const ParkingSpaceError("Failed to load parking spaces."),
@@ -106,7 +106,7 @@ void main() {
       expect: () => [
         ParkingSpaceLoading(), // Loading state emitted first
         const ParkingSpaceError(
-            'Failed to add parking space.'), // Match with period
+            'Failed to add parking space: Exception: Failed to add parking space'),
       ],
       verify: (_) {
         // Verify repository call

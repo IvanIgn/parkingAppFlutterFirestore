@@ -1,9 +1,13 @@
 part of 'parking_space_bloc.dart';
 
-abstract class ParkingSpaceState {}
+abstract class ParkingSpaceState extends Equatable {
+  const ParkingSpaceState();
+
+  @override
+  List<Object?> get props => [];
+}
 
 // Initial state when no parking data is available
-
 class ParkingSpaceInitial extends ParkingSpaceState {}
 
 class ParkingSpaceLoading extends ParkingSpaceState {}
@@ -13,16 +17,24 @@ class ParkingSpaceLoaded extends ParkingSpaceState {
   final ParkingSpace? selectedParkingSpace;
   final bool isParkingActive;
 
-  ParkingSpaceLoaded({
+  const ParkingSpaceLoaded({
     required this.parkingSpaces,
     this.selectedParkingSpace,
     this.isParkingActive = false,
   });
+
+  @override
+  List<Object?> get props =>
+      [parkingSpaces, selectedParkingSpace, isParkingActive];
 }
 
 class ParkingSpaceError extends ParkingSpaceState {
   final String message;
-  ParkingSpaceError(this.message);
+
+  const ParkingSpaceError(this.message);
+
+  @override
+  List<Object?> get props => [message];
 }
 
 // State indicating that parking spaces have been successfully loaded

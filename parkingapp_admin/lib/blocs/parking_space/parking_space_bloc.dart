@@ -40,7 +40,7 @@ class ParkingSpaceBloc extends Bloc<ParkingSpaceEvent, ParkingSpaceState> {
       final parkingSpaces = await parkingSpaceRepository.getAllParkingSpaces();
       emit(ParkingSpaceLoaded(parkingSpaces)); // Emit the updated state
     } catch (error) {
-      emit(const ParkingSpaceError('Failed to add parking space.'));
+      emit(ParkingSpaceError('Failed to add parking space: $error'));
     }
   }
 
@@ -66,23 +66,10 @@ class ParkingSpaceBloc extends Bloc<ParkingSpaceEvent, ParkingSpaceState> {
       emit(ParkingSpaceLoaded(updatedSpaces));
     } catch (error) {
       // Emit an error if something goes wrong
-      emit(const ParkingSpaceError('Error updating parking space'));
+      emit(ParkingSpaceError(
+          'Error updating parking space: ${error.toString()}'));
     }
   }
-
-  // Future<void> _onDeleteParkingSpace(
-  //   DeleteParkingSpace event,
-  //   Emitter<ParkingSpaceState> emit,
-  // ) async {
-  //   try {
-  //     await parkingSpaceRepository.deleteParkingSpace(event.parkingSpaceId);
-  //     final updatedParkingSpaces =
-  //         await parkingSpaceRepository.getAllParkingSpaces(); // Refresh list
-  //     emit(ParkingSpaceLoaded(updatedParkingSpaces));
-  //   } catch (error) {
-  //     emit(ParkingSpaceError('Failed to delete parking space: $error'));
-  //   }
-  // }
 
   Future<void> _onDeleteParkingSpace(
       DeleteParkingSpace event, Emitter<ParkingSpaceState> emit) async {
@@ -96,8 +83,8 @@ class ParkingSpaceBloc extends Bloc<ParkingSpaceEvent, ParkingSpaceState> {
       emit(ParkingSpaceLoaded(
           updatedParkingSpaces)); // Emit loaded state with updated list
     } catch (e) {
-      emit(const ParkingSpaceError(
-          "Failed to delete parking space")); // Emit error state if something goes wrong
+      emit(ParkingSpaceError(
+          "Failed to delete parking space: $e")); // Emit error state if something goes wrong
     }
   }
 }

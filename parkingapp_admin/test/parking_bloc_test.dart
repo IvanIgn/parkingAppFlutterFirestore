@@ -94,7 +94,6 @@ void main() {
         verify(() => mockParkingRepository.getAllParkings()).called(1);
       },
     );
-    ;
   });
 
   group('AddParkingEvent', () {
@@ -143,7 +142,9 @@ void main() {
       },
       act: (bloc) => bloc.add(AddParkingEvent(parking)),
       expect: () => [
-        MonitorParkingsErrorState('Exception: Failed to add parking'),
+        MonitorParkingsLoadingState(),
+        MonitorParkingsErrorState(
+            'Failed to add parking: Exception: Failed to add parking'),
       ],
       verify: (_) {
         verify(() => mockParkingRepository.createParking(parking)).called(1);
@@ -225,7 +226,7 @@ void main() {
       act: (bloc) => bloc.add(DeleteParkingEvent(parkingId)),
       expect: () => [
         MonitorParkingsLoadingState(),
-        MonitorParkingsLoadedState([]),
+        MonitorParkingsLoadedState(const []),
       ],
       verify: (_) {
         verify(() => mockParkingRepository.deleteParking(parkingId)).called(1);

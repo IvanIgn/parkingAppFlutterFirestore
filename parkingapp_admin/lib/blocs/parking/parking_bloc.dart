@@ -8,68 +8,6 @@ import 'package:equatable/equatable.dart';
 part 'parking_event.dart';
 part 'parking_state.dart';
 
-// we need to copy the style from VehicleBloc to ParkingsBloc
-
-// class ParkingsBloc extends Bloc<MonitorParkingsEvent, MonitorParkingsState> {
-//   final ParkingRepository _parkingRepository = ParkingRepository.instance;
-
-//   ParkingsBloc() : super(MonitorParkingsInitialState()) {
-//     on<LoadParkingsEvent>(_onLoadParkingsEvent);
-//     on<AddParkingEvent>(_onAddParkingEvent);
-//     on<EditParkingEvent>(_onEditParkingEvent);
-//     on<DeleteParkingEvent>(_onDeleteParkingEvent);
-//   }
-
-//   Future<void> _onLoadParkingsEvent(
-//     LoadParkingsEvent event,
-//     Emitter<MonitorParkingsState> emit,
-//   ) async {
-//     emit(MonitorParkingsLoadingState());
-//     try {
-//       final parkings = await _parkingRepository.getAllParkings();
-//       emit(MonitorParkingsLoadedState(parkings));
-//     } catch (e) {
-//       emit(MonitorParkingsErrorState(errorMessage: e.toString()));
-//     }
-//   }
-
-//   Future<void> _onAddParkingEvent(
-//     AddParkingEvent event,
-//     Emitter<MonitorParkingsState> emit,
-//   ) async {
-//     try {
-//       await _parkingRepository.createParking(event.parking);
-//       add(LoadParkingsEvent()); // Refresh list after adding parking
-//     } catch (e) {
-//       emit(MonitorParkingsErrorState(errorMessage: e.toString()));
-//     }
-//   }
-
-//   Future<void> _onEditParkingEvent(
-//     EditParkingEvent event,
-//     Emitter<MonitorParkingsState> emit,
-//   ) async {
-//     try {
-//       await _parkingRepository.updateParking(event.parkingId, event.parking);
-//       add(LoadParkingsEvent()); // Refresh list after editing parking
-//     } catch (e) {
-//       emit(MonitorParkingsErrorState(errorMessage: e.toString()));
-//     }
-//   }
-
-//   Future<void> _onDeleteParkingEvent(
-//     DeleteParkingEvent event,
-//     Emitter<MonitorParkingsState> emit,
-//   ) async {
-//     try {
-//       await _parkingRepository.deleteParking(event.parkingId);
-//       add(LoadParkingsEvent()); // Refresh list after deleting parking
-//     } catch (e) {
-//       emit(MonitorParkingsErrorState(errorMessage: e.toString()));
-//     }
-//   }
-// }
-
 class ParkingsBloc extends Bloc<MonitorParkingsEvent, MonitorParkingsState> {
   final ParkingRepository parkingRepository;
 
@@ -99,11 +37,13 @@ class ParkingsBloc extends Bloc<MonitorParkingsEvent, MonitorParkingsState> {
     AddParkingEvent event,
     Emitter<MonitorParkingsState> emit,
   ) async {
+    emit(MonitorParkingsLoadingState()); // Emit a loading state
     try {
       await parkingRepository.createParking(event.parking);
-      add(LoadParkingsEvent());
-    } catch (e) {
-      emit(MonitorParkingsErrorState(e.toString()));
+      final parkings = await parkingRepository.getAllParkings();
+      emit(MonitorParkingsLoadedState(parkings)); // Emit the updated state
+    } catch (error) {
+      emit(MonitorParkingsErrorState('Failed to add parking: $error'));
     }
   }
 

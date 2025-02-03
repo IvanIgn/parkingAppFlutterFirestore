@@ -37,7 +37,7 @@ void main() {
             ]);
         return vehicleBloc;
       },
-      act: (bloc) => bloc.add(LoadVehicles()),
+      act: (bloc) => bloc.add(const LoadVehicles()),
       expect: () => [
         VehicleLoading(),
         VehicleLoaded([
@@ -57,7 +57,7 @@ void main() {
             .thenThrow(Exception('Failed to load vehicles'));
         return vehicleBloc;
       },
-      act: (bloc) => bloc.add(LoadVehicles()),
+      act: (bloc) => bloc.add(const LoadVehicles()),
       expect: () => [
         VehicleLoading(),
         const VehicleError(

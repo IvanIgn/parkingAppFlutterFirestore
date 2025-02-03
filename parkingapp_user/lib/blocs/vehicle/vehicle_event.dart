@@ -1,35 +1,62 @@
 part of 'vehicle_bloc.dart';
 
-abstract class VehicleEvent {}
+abstract class VehicleEvent extends Equatable {
+  const VehicleEvent();
+
+  @override
+  List<Object?> get props => [];
+}
 
 class LoadVehicles extends VehicleEvent {}
 
 class LoadVehiclesByPerson extends VehicleEvent {
   final Person person;
 
-  LoadVehiclesByPerson({required this.person});
+  const LoadVehiclesByPerson({required this.person});
+
+  @override
+  List<Object> get props => [person];
 }
 
 class CreateVehicle extends VehicleEvent {
   final Vehicle vehicle;
 
-  CreateVehicle({required this.vehicle});
+  const CreateVehicle({required this.vehicle});
+
+  @override
+  List<Object> get props => [vehicle];
 }
 
-class UpdateVehicles extends VehicleEvent {
+class UpdateVehicle extends VehicleEvent {
   final Vehicle vehicle;
 
-  UpdateVehicles({required this.vehicle});
+  const UpdateVehicle({required this.vehicle});
+
+  @override
+  List<Object> get props => [vehicle];
 }
 
-class DeleteVehicles extends VehicleEvent {
+class DeleteVehicle extends VehicleEvent {
   final Vehicle vehicle;
 
-  DeleteVehicles({required this.vehicle});
+  const DeleteVehicle({required this.vehicle});
+
+  @override
+  List<Object> get props => [vehicle];
 }
 
 class SelectVehicle extends VehicleEvent {
   final Vehicle vehicle;
 
-  SelectVehicle({required this.vehicle});
+  const SelectVehicle({required this.vehicle});
+
+  @override
+  List<Object> get props => [vehicle];
+}
+
+class DeselectVehicle extends VehicleEvent {
+  const DeselectVehicle();
+
+  @override
+  List<Object?> get props => [];
 }
