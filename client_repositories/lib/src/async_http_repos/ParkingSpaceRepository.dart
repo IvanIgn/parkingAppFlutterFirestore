@@ -38,7 +38,7 @@ class ParkingSpaceRepository {
     return ParkingSpace.fromJson(json);
   }
 
-  Future<ParkingSpace> getParkingSpaceById(int id) async {
+  Future<ParkingSpace> getParkingSpaceById(String id) async {
     //final uri = Uri.parse("http://localhost:8080/parkingspaces/$id");
     final uri = Uri.parse('$host:$port/$resource/$id');
 
@@ -82,7 +82,7 @@ class ParkingSpaceRepository {
     }
   }
 
-  Future<ParkingSpace> deleteParkingSpace(int id) async {
+  Future<ParkingSpace> deleteParkingSpace(String id) async {
     // final uri = Uri.parse("http://localhost:8080/parkingspaces/$id");
     final uri = Uri.parse('$host:$port/$resource/$id');
 
@@ -102,7 +102,7 @@ class ParkingSpaceRepository {
   }
 
   Future<ParkingSpace> updateParkingSpace(
-      int id, ParkingSpace parkingspace) async {
+      String id, ParkingSpace parkingspace) async {
     // final uri = Uri.parse("http://localhost:8080/parkingspaces/$id");
     final uri = Uri.parse('$host:$port/$resource/$id');
 

@@ -34,7 +34,7 @@ class PersonErrorState extends PersonState {
 
 /// State after successfully adding a person.
 class PersonAddedState extends PersonState {
-  final Person person; // ✅ Include the added person
+  final Person person;
 
   PersonAddedState(this.person);
 
@@ -54,7 +54,7 @@ class PersonUpdatedState extends PersonState {
 
 /// State after successfully deleting a person.
 class PersonDeletedState extends PersonState {
-  final int personId; // ✅ Include the deleted person's ID
+  final String personId; // ✅ Include the deleted person's ID
 
   PersonDeletedState(this.personId);
 

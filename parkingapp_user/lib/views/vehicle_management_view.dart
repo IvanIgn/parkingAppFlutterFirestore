@@ -2,7 +2,7 @@ import 'dart:convert'; // For JSON encoding/decoding
 import 'package:flutter/material.dart';
 import 'package:shared/shared.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:client_repositories/async_http_repos.dart'; // Add this line to import VehicleRepository
+import 'package:firebase_repositories/firebase_repositories.dart';
 import 'package:parkingapp_user/blocs/vehicle/vehicle_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

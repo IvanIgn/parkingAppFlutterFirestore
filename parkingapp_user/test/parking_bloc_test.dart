@@ -3,7 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:shared/shared.dart';
-import 'package:client_repositories/async_http_repos.dart';
+import 'package:firebase_repositories/firebase_repositories.dart';
 import 'package:parkingapp_user/blocs/parking/parking_bloc.dart';
 import 'package:clock/clock.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -47,22 +47,22 @@ void main() {
   group('LoadActiveParkings', () {
     final activeParkings = [
       Parking(
-        id: 1,
+        id: '1',
         startTime: DateTime.now(),
         endTime: DateTime.now().add(const Duration(hours: 2)),
         parkingSpace:
-            ParkingSpace(id: 1, address: 'Testadress 10', pricePerHour: 100),
+            ParkingSpace(id: '1', address: 'Testadress 10', pricePerHour: 100),
         vehicle: Vehicle(
             regNumber: 'ABC111',
             vehicleType: 'Bil',
             owner: Person(name: 'TestNamn1', personNumber: '199501071111')),
       ),
       Parking(
-        id: 2,
+        id: '2',
         startTime: DateTime.now(),
         endTime: DateTime.now().add(const Duration(hours: 3)),
         parkingSpace:
-            ParkingSpace(id: 2, address: 'Testadress 20', pricePerHour: 200),
+            ParkingSpace(id: '2', address: 'Testadress 20', pricePerHour: 200),
         vehicle: Vehicle(
             regNumber: 'ABC222',
             vehicleType: 'Lastbil',
@@ -122,17 +122,17 @@ void main() {
   group('LoadNonActiveParkings', () {
     final nonActiveParkings = [
       Parking(
-        id: 2,
+        id: '2',
         startTime: DateTime(2025, 1, 28, 10, 0, 0),
         endTime: DateTime(2025, 1, 28, 11, 0, 0),
         parkingSpace:
-            ParkingSpace(id: 2, address: 'Testadress 20', pricePerHour: 200),
+            ParkingSpace(id: '2', address: 'Testadress 20', pricePerHour: 200),
         vehicle: Vehicle(
-            id: 0,
+            id: '0',
             regNumber: 'ABC222',
             vehicleType: 'Lastbil',
-            owner:
-                Person(id: 0, name: 'TestNamn2', personNumber: '199501072222')),
+            owner: Person(
+                id: '0', name: 'TestNamn2', personNumber: '199501072222')),
 
         // Before the mocked DateTime.now
       ),
@@ -179,11 +179,11 @@ void main() {
 
   group('AddParkingEvent', () {
     final parking = Parking(
-      id: 1,
+      id: '1',
       startTime: DateTime.now(),
       endTime: DateTime.now().add(const Duration(hours: 2)),
       parkingSpace: ParkingSpace(
-        id: 1,
+        id: '1',
         address: 'Testadress 10',
         pricePerHour: 100,
       ),
@@ -239,11 +239,11 @@ void main() {
 
   group('UpdateParkingEvent', () {
     final parking = Parking(
-      id: 1,
+      id: '1',
       startTime: DateTime.now(),
       endTime: DateTime.now().add(const Duration(hours: 2)),
       parkingSpace: ParkingSpace(
-        id: 1,
+        id: '1',
         address: 'Testadress 10',
         pricePerHour: 100,
       ),
@@ -306,7 +306,7 @@ void main() {
   });
 
   group('DeleteParkingEvent', () {
-    const parkingId = 1;
+    const parkingId = '1';
 
     blocTest<ParkingBloc, ParkingState>(
       'emits ParkingLoadedState on successful delete',
@@ -323,7 +323,7 @@ void main() {
         startTime: DateTime.now(),
         endTime: DateTime.now().add(const Duration(hours: 2)),
         parkingSpace:
-            ParkingSpace(id: 1, address: 'Testadress 10', pricePerHour: 100),
+            ParkingSpace(id: '1', address: 'Testadress 10', pricePerHour: 100),
         vehicle: Vehicle(
             regNumber: 'ABC111',
             vehicleType: 'Bil',
@@ -352,7 +352,7 @@ void main() {
               startTime: DateTime.now(),
               endTime: DateTime.now().add(const Duration(hours: 2)),
               parkingSpace: ParkingSpace(
-                  id: 1, address: 'Testadress 10', pricePerHour: 100),
+                  id: '1', address: 'Testadress 10', pricePerHour: 100),
               vehicle: Vehicle(
                   regNumber: 'ABC111',
                   vehicleType: 'Bil',

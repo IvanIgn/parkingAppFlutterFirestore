@@ -2,14 +2,14 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:shared/shared.dart';
-import 'package:client_repositories/async_http_repos.dart';
+import 'package:firebase_repositories/firebase_repositories.dart';
 import 'package:parkingapp_user/blocs/person/person_bloc.dart';
 
 class MockPersonRepository extends Mock implements PersonRepository {}
 
 class FakePerson extends Fake implements Person {
   @override
-  int get id => 1;
+  String get id => '1';
 
   @override
   String get name => 'John Doe';
@@ -30,12 +30,12 @@ void main() {
 
     when(() => mockPersonRepository.getAllPersons()).thenAnswer(
       (_) async => [
-        Person(id: 1, name: 'John Doe', personNumber: '123456789016'),
+        Person(id: '1', name: 'John Doe', personNumber: '123456789016'),
       ],
     );
 
     final person =
-        Person(id: 1, name: 'John Doe', personNumber: '123456789016');
+        Person(id: '1', name: 'John Doe', personNumber: '123456789016');
     when(() => mockPersonRepository.getPersonById(person.id))
         .thenAnswer((_) async => person);
   });
@@ -54,7 +54,7 @@ void main() {
           // Mocking the repository to return a person
           when(() => mockPersonRepository.getAllPersons()).thenAnswer(
             (_) async => [
-              Person(id: 1, name: 'John Doe', personNumber: '1234567890'),
+              Person(id: '1', name: 'John Doe', personNumber: '1234567890'),
             ],
           );
         },
@@ -65,7 +65,7 @@ void main() {
         expect: () => [
           PersonsLoading(), // Expect PersonsLoading state to be emitted first
           PersonsLoaded(persons: [
-            Person(id: 1, name: 'John Doe', personNumber: '1234567890'),
+            Person(id: '1', name: 'John Doe', personNumber: '1234567890'),
           ]), // Then, expect PersonsLoaded with person data
         ],
         verify: (_) {
@@ -91,7 +91,7 @@ void main() {
 
     group('LoadPersonsById', () {
       final person =
-          Person(id: 1, name: 'John Doe', personNumber: '123456789016');
+          Person(id: '1', name: 'John Doe', personNumber: '123456789016');
 
       blocTest<PersonBloc, PersonState>(
         'emits [PersonsLoading, PersonLoaded] when LoadPersonsById is successful',
@@ -133,10 +133,10 @@ void main() {
 
     group('CreatePerson', () {
       final person =
-          Person(id: 1, name: 'John Doe', personNumber: '123456789016');
+          Person(id: '1', name: 'John Doe', personNumber: '123456789016');
       final updatedPersonList = [
         person,
-        Person(id: 2, name: 'Jane Doe', personNumber: '098765432113'),
+        Person(id: '2', name: 'Jane Doe', personNumber: '098765432113'),
       ];
 
       blocTest<PersonBloc, PersonState>(
@@ -178,7 +178,7 @@ void main() {
 
     group('UpdatePerson', () {
       final person =
-          Person(id: 1, name: 'John Doe', personNumber: '1234567890');
+          Person(id: '1', name: 'John Doe', personNumber: '1234567890');
 
       blocTest<PersonBloc, PersonState>(
         'emits [PersonsLoading, PersonLoaded] when UpdatePerson is successful',
@@ -228,9 +228,9 @@ void main() {
 
     group('DeletePerson', () {
       final person =
-          Person(id: 1, name: 'John Doe', personNumber: '123456789016');
+          Person(id: '1', name: 'John Doe', personNumber: '123456789016');
       final updatedPersonList = [
-        Person(id: 2, name: 'Jane Doe', personNumber: '098765432116'),
+        Person(id: '2', name: 'Jane Doe', personNumber: '098765432116'),
       ];
 
       blocTest<PersonBloc, PersonState>(

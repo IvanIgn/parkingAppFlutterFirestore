@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:client_repositories/async_http_repos.dart';
+import 'package:firebase_repositories/firebase_repositories.dart';
 import 'package:shared/shared.dart';
 
 part 'parking_space_event.dart';
@@ -75,7 +75,8 @@ class ParkingSpaceBloc extends Bloc<ParkingSpaceEvent, ParkingSpaceState> {
       DeleteParkingSpace event, Emitter<ParkingSpaceState> emit) async {
     emit(ParkingSpaceLoading()); // Emit loading state first
     try {
-      await parkingSpaceRepository.deleteParkingSpace(event.parkingSpaceId);
+      await parkingSpaceRepository
+          .deleteParkingSpace(event.parkingSpaceId.toString());
       emit(ParkingSpaceDeleted()); // Emit deleted state after deletion
       // Optionally fetch the updated list of parking spaces
       final updatedParkingSpaces =

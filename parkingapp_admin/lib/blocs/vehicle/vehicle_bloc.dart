@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:client_repositories/async_http_repos.dart';
+import 'package:firebase_repositories/firebase_repositories.dart';
 import 'package:equatable/equatable.dart';
 import 'package:shared/shared.dart';
 
@@ -75,7 +75,8 @@ class VehicleBloc extends Bloc<VehicleEvent, VehicleState> {
     emit(VehicleLoading()); // Emit loading state
 
     try {
-      await vehicleRepository.deleteVehicle(event.vehicleId); // Call delete
+      await vehicleRepository
+          .deleteVehicle(event.vehicleId.toString()); // Call delete
       emit(VehicleDeleted()); // Emit deleted state
       final updatedVehicles =
           await vehicleRepository.getAllVehicles(); // Fetch updated list

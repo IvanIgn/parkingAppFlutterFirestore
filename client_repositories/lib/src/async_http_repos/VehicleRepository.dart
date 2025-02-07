@@ -30,7 +30,7 @@ class VehicleRepository {
     return Vehicle.fromJson(json);
   }
 
-  Future<Vehicle> getVehicleById(int id) async {
+  Future<Vehicle> getVehicleById(String id) async {
     // final uri = Uri.parse("http://localhost:8080/vehicles/$id");
     final uri = Uri.parse('$host:$port/$resource/$id');
 
@@ -70,7 +70,7 @@ class VehicleRepository {
     }
   }
 
-  Future<Vehicle> deleteVehicle(int id) async {
+  Future<Vehicle> deleteVehicle(String id) async {
     //final uri = Uri.parse("http://localhost:8080/vehicles/$id");
     final uri = Uri.parse('$host:$port/$resource/$id');
 
@@ -89,7 +89,7 @@ class VehicleRepository {
     }
   }
 
-  Future<Vehicle> updateVehicle(int id, Vehicle vehicle) async {
+  Future<Vehicle> updateVehicle(String id, Vehicle vehicle) async {
     // final uri = Uri.parse("http://localhost:8080/vehicles/$id");
     final uri = Uri.parse('$host:$port/$resource/$id');
 

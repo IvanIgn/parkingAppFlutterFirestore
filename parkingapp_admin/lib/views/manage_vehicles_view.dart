@@ -1,4 +1,4 @@
-import 'package:client_repositories/async_http_repos.dart';
+import 'package:firebase_repositories/firebase_repositories.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared/shared.dart';
@@ -391,7 +391,7 @@ class _ManageVehiclesViewState extends State<ManageVehiclesView> {
             ),
             ElevatedButton(
               onPressed: () {
-                context.read<VehicleBloc>().add(DeleteVehicle(vehicle.id));
+                context.read<VehicleBloc>().add(DeleteVehicle((vehicle.id)));
                 Navigator.of(context).pop();
               },
               child: const Text("Ta bort"),

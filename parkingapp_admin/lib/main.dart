@@ -6,9 +6,14 @@ import 'package:parkingapp_admin/blocs/person/person_bloc.dart';
 import 'package:parkingapp_admin/blocs/vehicle/vehicle_bloc.dart';
 import 'package:parkingapp_admin/blocs/parking/parking_bloc.dart';
 import 'package:parkingapp_admin/blocs/parking_space/parking_space_bloc.dart';
-import 'package:client_repositories/async_http_repos.dart'; // Add this line
-import 'package:provider/provider.dart';
+import 'package:firebase_repositories/firebase_repositories.dart';
 import 'package:provider/single_child_widget.dart';
+import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:parkingapp_admin/firebase_options.dart';
+import 'package:flutter/foundation.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:provider/provider.dart';
 
 // Define the repositories as final constants
 final vehicleRepository = VehicleRepository.instance;
@@ -21,13 +26,25 @@ final ValueNotifier<bool> isDarkModeNotifier = ValueNotifier(false);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // await ParkingSpaceRepository.instance;
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  final storage = await HydratedStorage.build(
+    storageDirectory: kIsWeb
+        ? HydratedStorage.webStorageDirectory
+        : await getApplicationDocumentsDirectory(),
+  );
 
   await _initializeAppSettings();
-  runApp(const ParkingAdminApp());
+
+  HydratedBlocOverrides.runZoned(
+    () => runApp(const ParkingAdminApp()),
+    storage: storage,
+  );
 }
 
-// Helper function to initialize app settings
 Future<void> _initializeAppSettings() async {
   final prefs = await SharedPreferences.getInstance();
   isDarkModeNotifier.value = prefs.getBool('isDarkMode') ?? false;
@@ -59,26 +76,26 @@ class ParkingAdminApp extends StatelessWidget {
   // Extracted method to provide a list of all necessary providers
   List<SingleChildWidget> _getProviders(BuildContext context) {
     return [
+      RepositoryProvider<VehicleRepository>.value(value: vehicleRepository),
+      RepositoryProvider<ParkingSpaceRepository>.value(
+          value: parkingSpaceRepository),
+      RepositoryProvider<ParkingRepository>.value(value: parkingRepository),
+      RepositoryProvider<PersonRepository>.value(value: personRepository),
       BlocProvider<PersonBloc>(
-        create: (_) =>
-            PersonBloc(repository: personRepository)..add(const FetchPersonsEvent()),
+        create: (context) => PersonBloc(repository: personRepository)
+          ..add(const FetchPersonsEvent()),
       ),
-      // BlocProvider<PersonBloc>(
-      //   create: (_) => PersonBloc()..add(FetchPersonsEvent()),
-      // ),
       BlocProvider<VehicleBloc>(
-        create: (_) => VehicleBloc(vehicleRepository)..add(const LoadVehicles()),
+        create: (context) =>
+            VehicleBloc(vehicleRepository)..add(const LoadVehicles()),
       ),
       BlocProvider<ParkingsBloc>(
-        create: (_) => ParkingsBloc(parkingRepository: parkingRepository)
+        create: (context) => ParkingsBloc(parkingRepository: parkingRepository)
           ..add(LoadParkingsEvent()),
       ),
       BlocProvider<ParkingSpaceBloc>(
-        create: (_) =>
-            ParkingSpaceBloc(parkingSpaceRepository)..add(const LoadParkingSpaces()),
-      ),
-      Provider<ParkingSpaceRepository>(
-        create: (_) => parkingSpaceRepository,
+        create: (context) => ParkingSpaceBloc(parkingSpaceRepository)
+          ..add(const LoadParkingSpaces()),
       ),
     ];
   }

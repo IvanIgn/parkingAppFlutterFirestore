@@ -34,7 +34,7 @@ class UpdateVehicle extends VehicleEvent {
 
 // Event to delete a vehicle by its ID
 class DeleteVehicle extends VehicleEvent {
-  final int vehicleId;
+  final String vehicleId;
 
   const DeleteVehicle(this.vehicleId);
 

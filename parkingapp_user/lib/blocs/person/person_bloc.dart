@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:shared/shared.dart';
-import 'package:client_repositories/async_http_repos.dart';
+import 'package:firebase_repositories/firebase_repositories.dart';
 import 'package:equatable/equatable.dart';
 
 part 'person_event.dart';

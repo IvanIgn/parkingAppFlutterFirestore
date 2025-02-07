@@ -30,31 +30,32 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  intl: ^0.20.2 
+  shared_preferences: ^2.0.13
+  equatable: ^2.0.3
   flutter_bloc: ^8.0.0
-  equatable: ^2.0.5 
-  shared_preferences: ^2.2.0
+  bloc_test: ^9.1.7
+  mocktail: ^1.0.4 
+  bloc: ^8.0.0
+  provider: ^6.1.2
+  intl: ^0.20.1  # Only one instance here
+  shared: 
+    path: '../shared'
+  firebase_repositories: 
+    path: '../firebase_repositories'
+  firebase_core: ^3.10.1
+  hydrated_bloc: ^8.0.0
+  path_provider: ^2.0.11
+
 
 
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
-
-  shared: 
-    path: '../shared'
- # shared_widgets: 
- #   path: '../shared_widgets'
-  client_repositories: 
-    path: '../client_repositories'
-  cli: 
-    path: '../cli'  
-
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  mocktail: ^1.0.4
-  bloc_test: ^9.1.0
 
 
 

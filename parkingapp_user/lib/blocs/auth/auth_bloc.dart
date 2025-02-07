@@ -2,7 +2,7 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-import 'package:client_repositories/async_http_repos.dart'; // Assume this contains PersonRepository and Person model
+import 'package:firebase_repositories/firebase_repositories.dart'; // Assume this contains PersonRepository and Person model
 
 part 'auth_event.dart';
 part 'auth_state.dart';

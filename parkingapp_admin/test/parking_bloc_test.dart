@@ -1,7 +1,7 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:client_repositories/async_http_repos.dart';
+import 'package:firebase_repositories/firebase_repositories.dart';
 import 'package:shared/shared.dart';
 import 'package:parkingapp_admin/blocs/parking/parking_bloc.dart';
 
@@ -29,11 +29,11 @@ void main() {
   group('LoadParkingsEvent', () {
     final mockParkings = [
       Parking(
-        id: 1,
+        id: '1',
         startTime: DateTime.now(),
         endTime: DateTime.now().add(const Duration(hours: 2)),
         parkingSpace: ParkingSpace(
-          id: 1,
+          id: '1',
           address: 'Testadress 10',
           pricePerHour: 100,
         ),
@@ -44,11 +44,11 @@ void main() {
         ),
       ),
       Parking(
-        id: 2,
+        id: '2',
         startTime: DateTime.now(),
         endTime: DateTime.now().add(const Duration(hours: 3)),
         parkingSpace: ParkingSpace(
-          id: 2,
+          id: '2',
           address: 'Testadress 20',
           pricePerHour: 200,
         ),
@@ -98,11 +98,11 @@ void main() {
 
   group('AddParkingEvent', () {
     final parking = Parking(
-      id: 1,
+      id: '1',
       startTime: DateTime.now(),
       endTime: DateTime.now().add(const Duration(hours: 2)),
       parkingSpace: ParkingSpace(
-        id: 1,
+        id: '1',
         address: 'Testadress 10',
         pricePerHour: 100,
       ),
@@ -154,11 +154,11 @@ void main() {
 
   group('EditParkingEvent', () {
     final parking = Parking(
-      id: 1,
+      id: '1',
       startTime: DateTime.now(),
       endTime: DateTime.now().add(const Duration(hours: 2)),
       parkingSpace: ParkingSpace(
-        id: 1,
+        id: '1',
         address: 'Testadress 10',
         pricePerHour: 100,
       ),
@@ -179,7 +179,7 @@ void main() {
         return parkingsBloc;
       },
       act: (bloc) =>
-          bloc.add(EditParkingEvent(parkingId: parking.id, parking: parking)),
+          bloc.add(EditParkingEvent(parkingId: (parking.id), parking: parking)),
       expect: () => [
         MonitorParkingsLoadingState(),
         MonitorParkingsLoadedState([parking]),
@@ -199,7 +199,7 @@ void main() {
         return parkingsBloc;
       },
       act: (bloc) =>
-          bloc.add(EditParkingEvent(parkingId: parking.id, parking: parking)),
+          bloc.add(EditParkingEvent(parkingId: (parking.id), parking: parking)),
       expect: () => [
         MonitorParkingsErrorState(
             'Failed to edit parking. Details: Exception: Failed to edit parking'),
@@ -212,7 +212,22 @@ void main() {
   });
 
   group('DeleteParkingEvent', () {
-    const parkingId = 1;
+    const parkingId = '1';
+    final parking = Parking(
+      id: '1',
+      startTime: DateTime.now(),
+      endTime: DateTime.now().add(const Duration(hours: 2)),
+      parkingSpace: ParkingSpace(
+        id: '1',
+        address: 'Testadress 10',
+        pricePerHour: 100,
+      ),
+      vehicle: Vehicle(
+        regNumber: 'ABC111',
+        vehicleType: 'Bil',
+        owner: Person(name: 'TestNamn1', personNumber: '199501071111'),
+      ),
+    );
 
     blocTest<ParkingsBloc, MonitorParkingsState>(
       'emits MonitorParkingsLoadedState on successful delete',
@@ -223,7 +238,27 @@ void main() {
             .thenAnswer((_) async => []);
         return parkingsBloc;
       },
-      act: (bloc) => bloc.add(DeleteParkingEvent(parkingId)),
+      act: (bloc) => bloc.add(DeleteParkingEvent((parking.id))),
+      expect: () => [
+        MonitorParkingsLoadingState(),
+        MonitorParkingsLoadedState(const []),
+      ],
+      verify: (_) {
+        verify(() => mockParkingRepository.deleteParking(parkingId)).called(1);
+        verify(() => mockParkingRepository.getAllParkings()).called(1);
+      },
+    );
+
+    blocTest<ParkingsBloc, MonitorParkingsState>(
+      'emits MonitorParkingsLoadedState on successful delete',
+      build: () {
+        when(() => mockParkingRepository.deleteParking(parkingId))
+            .thenAnswer((_) async => FakeParking());
+        when(() => mockParkingRepository.getAllParkings())
+            .thenAnswer((_) async => []);
+        return parkingsBloc;
+      },
+      act: (bloc) => bloc.add(DeleteParkingEvent((parking.id))),
       expect: () => [
         MonitorParkingsLoadingState(),
         MonitorParkingsLoadedState(const []),
@@ -241,7 +276,7 @@ void main() {
             .thenThrow(Exception('Failed to delete parking'));
         return parkingsBloc;
       },
-      act: (bloc) => bloc.add(DeleteParkingEvent(parkingId)),
+      act: (bloc) => bloc.add(DeleteParkingEvent((parking.id))),
       expect: () => [
         MonitorParkingsErrorState(
             'Failed to delete parking. Details: Exception: Failed to delete parking'),

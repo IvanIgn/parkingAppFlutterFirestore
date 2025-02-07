@@ -15,14 +15,14 @@ class AddParkingEvent extends MonitorParkingsEvent {
 }
 
 class EditParkingEvent extends MonitorParkingsEvent {
-  final int parkingId;
+  final String parkingId;
   final Parking parking;
 
   EditParkingEvent({required this.parkingId, required this.parking});
 }
 
 class DeleteParkingEvent extends MonitorParkingsEvent {
-  final int parkingId;
+  final String parkingId;
 
   DeleteParkingEvent(this.parkingId);
 }

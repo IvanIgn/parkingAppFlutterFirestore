@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:client_repositories/async_http_repos.dart';
+import 'package:firebase_repositories/firebase_repositories.dart';
 import 'dart:convert';
 import '../main.dart'; // To access the global isDarkModeNotifier
 import '../blocs/auth/auth_bloc.dart'; // Import your AuthBloc
@@ -31,7 +31,9 @@ class SettingsView extends StatelessWidget {
             ),
             TextButton(
               onPressed: () async {
-                Navigator.of(context).pop(); // Close the dialog
+                final authBloc = context.read<AuthBloc>(); // Hämta innan pop()
+
+                Navigator.of(context).pop(); // Stäng dialogen först
 
                 final prefs = await SharedPreferences.getInstance();
                 final loggedInPersonJson = prefs.getString('loggedInPerson');
@@ -43,17 +45,16 @@ class SettingsView extends StatelessWidget {
                     final loggedInPersonId = loggedInPerson['id']?.toString();
 
                     if (loggedInPersonId != null) {
-                      // Delete the user from the repository
                       await PersonRepository.instance
-                          .deletePerson(int.parse(loggedInPersonId));
+                          .deletePerson(loggedInPersonId);
                     }
                   } catch (e) {
                     debugPrint('Error deleting person: $e');
                   }
                 }
 
-                // Log out the user
-                context.read<AuthBloc>().add(LogoutRequested());
+                authBloc.add(
+                    LogoutRequested()); // Nu är det säkert att anropa detta
               },
               child: const Text(
                 'Ta bort',

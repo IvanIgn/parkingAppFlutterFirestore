@@ -1,7 +1,7 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:client_repositories/async_http_repos.dart';
+import 'package:firebase_repositories/firebase_repositories.dart';
 import 'package:shared/shared.dart';
 import 'package:parkingapp_user/blocs/registration/registration_bloc.dart';
 
@@ -22,7 +22,7 @@ void main() {
 
     when(() => mockPersonRepository.createPerson(any())).thenAnswer(
       (_) async =>
-          Person(id: 1, name: 'John Doe', personNumber: '123456789012'),
+          Person(id: '1', name: 'John Doe', personNumber: '123456789012'),
     );
   });
 
@@ -32,7 +32,7 @@ void main() {
 
   setUpAll(() {
     registerFallbackValue(
-        Person(id: 0, name: 'John Doe', personNumber: '123456789012'));
+        Person(id: '0', name: 'John Doe', personNumber: '123456789012'));
   });
 
   group('RegistrationBloc', () {
@@ -129,7 +129,7 @@ void main() {
       setUp: () {
         // Mock that the person is already registered
         when(() => mockPersonRepository.getAllPersons()).thenAnswer((_) async =>
-            [Person(id: 1, name: 'John Doe', personNumber: '123456789012')]);
+            [Person(id: '1', name: 'John Doe', personNumber: '123456789012')]);
       },
       build: () => RegistrationBloc(personRepository: mockPersonRepository),
       act: (bloc) => bloc.add(

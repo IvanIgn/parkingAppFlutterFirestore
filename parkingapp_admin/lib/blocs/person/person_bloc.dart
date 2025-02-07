@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:client_repositories/async_http_repos.dart';
+import 'package:firebase_repositories/firebase_repositories.dart';
 import 'package:shared/shared.dart';
 import 'package:equatable/equatable.dart';
 
@@ -108,7 +108,7 @@ class PersonBloc extends Bloc<PersonEvent, PersonState> {
     try {
       emit(PersonLoadingState()); // Emit loading state first
 
-      await repository.deletePerson(event.personId);
+      await repository.deletePerson(event.personId.toString());
 
       // Ensure the state update is valid
       if (state is PersonLoadedState &&
@@ -118,7 +118,8 @@ class PersonBloc extends Bloc<PersonEvent, PersonState> {
             currentState.persons.where((p) => p.id != event.personId).toList();
         emit(PersonLoadedState(updatedList)); // Emit updated list
       } else {
-        emit(PersonLoadedState(const [])); // Emit empty list if no previous state
+        emit(PersonLoadedState(
+            const [])); // Emit empty list if no previous state
       }
     } catch (e) {
       emit(PersonErrorState("Error deleting person: $e"));

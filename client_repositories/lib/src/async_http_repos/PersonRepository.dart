@@ -29,7 +29,7 @@ class PersonRepository {
     return Person.fromJson(json);
   }
 
-  Future<Person> getPersonById(int id) async {
+  Future<Person> getPersonById(String id) async {
     //final uri = Uri.parse("http://localhost:8080/persons/$id");
     final uri = Uri.parse('$host:$port/$resource/$id');
 
@@ -56,7 +56,7 @@ class PersonRepository {
     return (json as List).map((person) => Person.fromJson(person)).toList();
   }
 
-  Future<Person> deletePerson(int id) async {
+  Future<Person> deletePerson(String id) async {
     // final uri = Uri.parse("http://localhost:8080/persons/$id");
     final uri = Uri.parse('$host:$port/$resource/$id');
 
@@ -70,7 +70,7 @@ class PersonRepository {
     return Person.fromJson(json);
   }
 
-  Future<Person> updatePerson(int id, Person person) async {
+  Future<Person> updatePerson(String id, Person person) async {
     //final uri = Uri.parse("http://localhost:8080/persons/$id");
     final uri = Uri.parse('$host:$port/$resource/$id');
 
@@ -79,7 +79,7 @@ class PersonRepository {
         body: jsonEncode(person.toJson()));
 
     if (response.statusCode != 200) {
-        throw Exception('Failed to update person');
+      throw Exception('Failed to update person');
     }
 
     final json = jsonDecode(response.body);

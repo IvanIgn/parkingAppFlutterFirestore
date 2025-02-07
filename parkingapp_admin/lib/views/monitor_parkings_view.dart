@@ -1,8 +1,6 @@
-//library;
-
 import 'package:flutter/material.dart';
 import 'package:shared/shared.dart';
-import 'package:client_repositories/async_http_repos.dart';
+import 'package:firebase_repositories/firebase_repositories.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:parkingapp_admin/blocs/parking/parking_bloc.dart';
@@ -240,7 +238,7 @@ void _showAddParkingDialog(BuildContext context) {
                 }
 
                 final newParking = Parking(
-                  id: 0, // Assign ID in the repository
+                  // id: Uuid().v4(), // Assign ID in the repository
                   startTime: DateTime.parse(
                       _getCorrectDate(startTimeController.text.trim())),
                   //DateTime.parse(startTimeController.text.trim()),
@@ -382,7 +380,7 @@ void _showEditParkingDialog(BuildContext context, Parking parking) {
                   );
 
                   context.read<ParkingsBloc>().add(EditParkingEvent(
-                      parkingId: parking.id, parking: updatedParking));
+                      parkingId: (parking.id), parking: updatedParking));
 
                   Navigator.of(context).pop();
                 },
@@ -414,7 +412,9 @@ void _showDeleteConfirmationDialog(BuildContext context, Parking parking) {
           ),
           ElevatedButton(
             onPressed: () {
-              context.read<ParkingsBloc>().add(DeleteParkingEvent(parking.id));
+              context
+                  .read<ParkingsBloc>()
+                  .add(DeleteParkingEvent((parking.id)));
               Navigator.of(context).pop();
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(

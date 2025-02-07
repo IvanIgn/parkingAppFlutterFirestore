@@ -231,7 +231,7 @@ class _ManageParkingSpacesViewState extends State<ManageParkingSpacesView> {
               onPressed: () {
                 context
                     .read<ParkingSpaceBloc>()
-                    .add(DeleteParkingSpace(parkingSpace.id));
+                    .add(DeleteParkingSpace((parkingSpace.id)));
                 Navigator.pop(context);
               },
               child: const Text("Ta bort"),

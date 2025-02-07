@@ -1,23 +1,22 @@
 // import 'package:equatable/equatable.dart';
-// import 'package:objectbox/objectbox.dart';
+// import 'package:uuid/uuid.dart';
 
-// @Entity()
-// class Person {
-//   @Id()
-//   int id; // Default to 0, the expected value for unassigned IDs in ObjectBox
-//   String name;
-//   String personNumber;
+// class Person extends Equatable {
+//   final String
+//       id; // Default to 0, the expected value for unassigned IDs in ObjectBox
+//   final String name;
+//   final String personNumber;
 
 //   Person({
+//     String? id,
 //     required this.name,
 //     required this.personNumber,
-//     this.id = 0, // Default to 0 for unassigned ID
-//   });
+//   }) : id = id ?? const Uuid().v4(); // Default to a new UUID for unassigned ID
 
 //   // Factory constructor to create a Person from JSON
 //   factory Person.fromJson(Map<String, dynamic> json) {
 //     return Person(
-//       id: json['id'] ?? 0, // Default to 0 if ID is missing
+//       id: json['id'] ?? '', // Default to 0 if ID is missing
 //       name: json['name'] ?? '',
 //       personNumber: json['personNumber'] ?? '',
 //     );
@@ -33,32 +32,40 @@
 //   }
 
 //   @override
-//   List<Object?> get props =>
-//       [id, name, personNumber]; // Properties used for comparison
+//   List<Object?> get props => [id, name, personNumber];
 // }
 
 import 'package:equatable/equatable.dart';
-import 'package:objectbox/objectbox.dart';
+import 'package:uuid/uuid.dart';
 
-@Entity()
 class Person extends Equatable {
-  @Id()
-  int id; // Default to 0, the expected value for unassigned IDs in ObjectBox
+  final String id;
   final String name;
   final String personNumber;
 
   Person({
+    String? id,
     required this.name,
     required this.personNumber,
-    this.id = 0, // Default to 0 for unassigned ID
-  });
+  }) : id = id ?? const Uuid().v4(); // Use a UUID if no ID is provided
 
   // Factory constructor to create a Person from JSON
   factory Person.fromJson(Map<String, dynamic> json) {
+    // Use UUID if id is not provided in the JSON
+    final id = json['id'] ?? const Uuid().v4();
+
+    // Throw error if name or personNumber is missing (or empty)
+    if (json['name'] == null || json['name'].isEmpty) {
+      throw ArgumentError('Name is required');
+    }
+    if (json['personNumber'] == null || json['personNumber'].isEmpty) {
+      throw ArgumentError('Person number is required');
+    }
+
     return Person(
-      id: json['id'] ?? 0, // Default to 0 if ID is missing
-      name: json['name'] ?? '',
-      personNumber: json['personNumber'] ?? '',
+      id: id,
+      name: json['name'],
+      personNumber: json['personNumber'],
     );
   }
 

@@ -2,7 +2,7 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:parkingapp_user/blocs/vehicle/vehicle_bloc.dart';
-import 'package:client_repositories/async_http_repos.dart';
+import 'package:firebase_repositories/firebase_repositories.dart';
 import 'package:shared/shared.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -39,17 +39,17 @@ void main() {
 
     when(() => mockRepository.getAllVehicles()).thenAnswer((_) async => [
           Vehicle(
-              id: 1,
+              id: '1',
               regNumber: 'ABC123',
               vehicleType: 'Bil',
-              owner:
-                  Person(id: 1, name: 'John Doe', personNumber: '1234567890')),
+              owner: Person(
+                  id: '1', name: 'John Doe', personNumber: '1234567890')),
           Vehicle(
-              id: 2,
+              id: '2',
               regNumber: 'XYZ789',
               vehicleType: 'Bil',
-              owner:
-                  Person(id: 2, name: 'Jane Doe', personNumber: '9876543210')),
+              owner: Person(
+                  id: '2', name: 'Jane Doe', personNumber: '9876543210')),
         ]);
   });
 
@@ -62,8 +62,8 @@ void main() {
       'emits [VehiclesLoading, VehiclesLoaded] when loading vehicles is successful',
       build: () {
         when(() => mockRepository.getAllVehicles()).thenAnswer((_) async => [
-              Vehicle(id: 1, regNumber: 'ABC123', vehicleType: 'Bil'),
-              Vehicle(id: 2, regNumber: 'XYZ789', vehicleType: 'Lastbil'),
+              Vehicle(id: '1', regNumber: 'ABC123', vehicleType: 'Bil'),
+              Vehicle(id: '2', regNumber: 'XYZ789', vehicleType: 'Lastbil'),
             ]);
         return vehicleBloc;
       },
@@ -71,8 +71,8 @@ void main() {
       expect: () => [
         VehiclesLoading(), // Expect VehiclesLoading to be emitted first
         VehiclesLoaded(vehicles: [
-          Vehicle(id: 1, regNumber: 'ABC123', vehicleType: 'Bil'),
-          Vehicle(id: 2, regNumber: 'XYZ789', vehicleType: 'Lastbil'),
+          Vehicle(id: '1', regNumber: 'ABC123', vehicleType: 'Bil'),
+          Vehicle(id: '2', regNumber: 'XYZ789', vehicleType: 'Lastbil'),
         ]), // Then expect VehiclesLoaded with the vehicles
       ],
       verify: (_) {
@@ -103,11 +103,11 @@ void main() {
 
   group('AddVehicle', () {
     final newVehicle = Vehicle(
-      id: 3,
+      id: '3',
       regNumber: 'DEF456',
       vehicleType: 'Bil',
       owner: Person(
-          id: 3,
+          id: '3',
           name: 'Jake Bill',
           personNumber: '1260560020'), // Ensure owner is not null
     );
@@ -119,8 +119,8 @@ void main() {
           (invocation) async {
             final vehicle = invocation.positionalArguments.first as Vehicle;
             return vehicle.copyWith(
-              owner:
-                  Person(id: 3, name: 'Jake Bill', personNumber: '1260560020'),
+              owner: Person(
+                  id: '3', name: 'Jake Bill', personNumber: '1260560020'),
             );
           },
         );
@@ -128,25 +128,25 @@ void main() {
         when(() => mockRepository.getAllVehicles()).thenAnswer(
           (_) async => [
             Vehicle(
-              id: 1,
+              id: '1',
               regNumber: 'ABC123',
               vehicleType: 'Bil',
               owner:
-                  Person(id: 1, name: 'John Doe', personNumber: '1234567890'),
+                  Person(id: '1', name: 'John Doe', personNumber: '1234567890'),
             ),
             Vehicle(
-              id: 2,
+              id: '2',
               regNumber: 'XYZ789',
               vehicleType: 'Lastbil',
-              owner:
-                  Person(id: 2, name: 'Jane Jones', personNumber: '1243560000'),
+              owner: Person(
+                  id: '2', name: 'Jane Jones', personNumber: '1243560000'),
             ),
             Vehicle(
-              id: 3,
+              id: '3',
               regNumber: 'DEF456',
               vehicleType: 'Bil',
-              owner:
-                  Person(id: 3, name: 'Jake Bill', personNumber: '1260560020'),
+              owner: Person(
+                  id: '3', name: 'Jake Bill', personNumber: '1260560020'),
             ),
           ],
         );
@@ -157,23 +157,25 @@ void main() {
         VehiclesLoading(),
         VehiclesLoaded(vehicles: [
           Vehicle(
-            id: 1,
+            id: '1',
             regNumber: 'ABC123',
             vehicleType: 'Bil',
-            owner: Person(id: 1, name: 'John Doe', personNumber: '1234567890'),
+            owner:
+                Person(id: '1', name: 'John Doe', personNumber: '1234567890'),
           ),
           Vehicle(
-            id: 2,
+            id: '2',
             regNumber: 'XYZ789',
             vehicleType: 'Lastbil',
             owner:
-                Person(id: 2, name: 'Jane Jones', personNumber: '1243560000'),
+                Person(id: '2', name: 'Jane Jones', personNumber: '1243560000'),
           ),
           Vehicle(
-            id: 3,
+            id: '3',
             regNumber: 'DEF456',
             vehicleType: 'Bil',
-            owner: Person(id: 3, name: 'Jake Bill', personNumber: '1260560020'),
+            owner:
+                Person(id: '3', name: 'Jake Bill', personNumber: '1260560020'),
           ),
         ], selectedVehicle: null),
       ],
@@ -201,51 +203,51 @@ void main() {
 
   group('UpdateVehicle', () {
     final updatedVehicle = Vehicle(
-        id: 1,
+        id: '1',
         regNumber: 'NEW123',
         vehicleType: 'Bil',
-        owner: Person(id: 1, name: 'John Doe', personNumber: '123456789012'));
+        owner: Person(id: '1', name: 'John Doe', personNumber: '123456789012'));
 
     blocTest<VehicleBloc, VehicleState>(
       'emits [VehiclesLoading, VehicleUpdated, VehiclesLoaded] when update is successful',
       build: () => vehicleBloc,
       seed: () => VehiclesLoaded(vehicles: [
         Vehicle(
-            id: 1,
+            id: '1',
             regNumber: 'OLD123',
             vehicleType: 'Bil',
-            owner:
-                Person(id: 1, name: 'John Doe', personNumber: '123456789012')),
+            owner: Person(
+                id: '1', name: 'John Doe', personNumber: '123456789012')),
         Vehicle(
-            id: 2,
+            id: '2',
             regNumber: 'XYZ789',
             vehicleType: 'Bil',
-            owner:
-                Person(id: 2, name: 'Jane Doe', personNumber: '987654321016')),
+            owner: Person(
+                id: '2', name: 'Jane Doe', personNumber: '987654321016')),
       ]),
       setUp: () {
         when(() => mockRepository.updateVehicle(any(), any())).thenAnswer(
           (_) async => Vehicle(
-              id: 1,
+              id: '1',
               regNumber: 'NEW123',
               vehicleType: 'Bil',
               owner: Person(
-                  id: 1, name: 'John Doe', personNumber: '123456789012')),
+                  id: '1', name: 'John Doe', personNumber: '123456789012')),
         );
         when(() => mockRepository.getAllVehicles()).thenAnswer(
           (_) async => [
             Vehicle(
-                id: 1,
+                id: '1',
                 regNumber: 'NEW123',
                 vehicleType: 'Bil',
                 owner: Person(
-                    id: 1, name: 'John Doe', personNumber: '1234567890')),
+                    id: '1', name: 'John Doe', personNumber: '1234567890')),
             Vehicle(
-                id: 2,
+                id: '2',
                 regNumber: 'XYZ789',
                 vehicleType: 'Bil',
                 owner: Person(
-                    id: 2, name: 'Jane Doe', personNumber: '9876543210')),
+                    id: '2', name: 'Jane Doe', personNumber: '9876543210')),
           ],
         );
       },
@@ -255,17 +257,17 @@ void main() {
         VehicleUpdated(vehicle: updatedVehicle),
         VehiclesLoaded(vehicles: [
           Vehicle(
-              id: 1,
+              id: '1',
               regNumber: 'NEW123',
               vehicleType: 'Bil',
-              owner:
-                  Person(id: 1, name: 'John Doe', personNumber: '1234567890')),
+              owner: Person(
+                  id: '1', name: 'John Doe', personNumber: '1234567890')),
           Vehicle(
-              id: 2,
+              id: '2',
               regNumber: 'XYZ789',
               vehicleType: 'Bil',
-              owner:
-                  Person(id: 2, name: 'Jane Doe', personNumber: '9876543210')),
+              owner: Person(
+                  id: '2', name: 'Jane Doe', personNumber: '9876543210')),
         ]),
       ],
     );
@@ -296,10 +298,11 @@ void main() {
       setUp: () {
         when(() => mockRepository.deleteVehicle(any())).thenAnswer(
           (_) async => Vehicle(
-            id: 1,
+            id: '1',
             regNumber: 'ABC123',
             vehicleType: 'Bil',
-            owner: Person(id: 1, name: 'John Doe', personNumber: '1234567890'),
+            owner:
+                Person(id: '1', name: 'John Doe', personNumber: '1234567890'),
           ),
         );
         when(() => mockRepository.getAllVehicles()).thenAnswer(
@@ -308,20 +311,21 @@ void main() {
       },
       act: (bloc) => bloc.add(DeleteVehicle(
         vehicle: Vehicle(
-          id: vehicleId,
+          id: vehicleId.toString(),
           regNumber: 'ABC123',
           vehicleType: 'Bil',
-          owner: Person(id: 1, name: 'John Doe', personNumber: '1234567890'),
+          owner: Person(id: '1', name: 'John Doe', personNumber: '1234567890'),
         ),
       )),
       expect: () => [
         VehiclesLoading(), // Emitted first
         VehicleDeleted(
           vehicle: Vehicle(
-            id: vehicleId,
+            id: vehicleId.toString(),
             regNumber: 'ABC123',
             vehicleType: 'Bil',
-            owner: Person(id: 1, name: 'John Doe', personNumber: '1234567890'),
+            owner:
+                Person(id: '1', name: 'John Doe', personNumber: '1234567890'),
           ),
         ),
         const VehiclesLoaded(
@@ -333,17 +337,17 @@ void main() {
     blocTest<VehicleBloc, VehicleState>(
       'emits [VehiclesLoading, VehiclesError] when delete fails',
       build: () {
-        when(() => mockRepository.deleteVehicle(vehicleId))
+        when(() => mockRepository.deleteVehicle(vehicleId.toString()))
             .thenThrow(Exception('Failed to delete vehicle'));
         return vehicleBloc;
       },
       act: (bloc) => bloc.add(DeleteVehicle(
           vehicle: Vehicle(
-              id: vehicleId,
+              id: vehicleId.toString(),
               regNumber: 'ABC123',
               vehicleType: 'Bil',
               owner: Person(
-                  id: 1, name: 'John Doe', personNumber: '1234567890')))),
+                  id: '1', name: 'John Doe', personNumber: '1234567890')))),
       expect: () => [
         VehiclesLoading(),
         const VehiclesError(
@@ -361,17 +365,17 @@ void main() {
         when(() => mockRepository.getAllVehicles()).thenAnswer(
           (_) async => [
             Vehicle(
-                id: 1,
+                id: '1',
                 regNumber: 'ABC123',
                 vehicleType: 'Bil',
                 owner: Person(
-                    id: 1, name: 'John Doe', personNumber: '123456789016')),
+                    id: '1', name: 'John Doe', personNumber: '123456789016')),
             Vehicle(
-                id: 2,
+                id: '2',
                 regNumber: 'XYZ789',
                 vehicleType: 'Lastbil',
                 owner: Person(
-                    id: 2, name: 'Jane Doe', personNumber: '987654321015')),
+                    id: '2', name: 'Jane Doe', personNumber: '987654321015')),
           ],
         );
 
@@ -394,7 +398,7 @@ void main() {
       act: (bloc) {
         // Select the vehicle
         bloc.add(SelectVehicle(
-          vehicle: Vehicle(id: 1, regNumber: 'ABC123', vehicleType: 'Bil'),
+          vehicle: Vehicle(id: '1', regNumber: 'ABC123', vehicleType: 'Bil'),
         ));
       },
       expect: () => [
@@ -405,17 +409,17 @@ void main() {
         VehiclesLoaded(
           vehicles: [
             Vehicle(
-                id: 1,
+                id: '1',
                 regNumber: 'ABC123',
                 vehicleType: 'Bil',
                 owner: Person(
-                    id: 1, name: 'John Doe', personNumber: '123456789016')),
+                    id: '1', name: 'John Doe', personNumber: '123456789016')),
             Vehicle(
-                id: 2,
+                id: '2',
                 regNumber: 'XYZ789',
                 vehicleType: 'Lastbil',
                 owner: Person(
-                    id: 2, name: 'Jane Doe', personNumber: '987654321015')),
+                    id: '2', name: 'Jane Doe', personNumber: '987654321015')),
           ],
           selectedVehicle: null,
         ),
@@ -424,24 +428,24 @@ void main() {
         VehiclesLoaded(
           vehicles: [
             Vehicle(
-                id: 1,
+                id: '1',
                 regNumber: 'ABC123',
                 vehicleType: 'Bil',
                 owner: Person(
-                    id: 1, name: 'John Doe', personNumber: '123456789016')),
+                    id: '1', name: 'John Doe', personNumber: '123456789016')),
             Vehicle(
-                id: 2,
+                id: '2',
                 regNumber: 'XYZ789',
                 vehicleType: 'Lastbil',
                 owner: Person(
-                    id: 2, name: 'Jane Doe', personNumber: '987654321015')),
+                    id: '2', name: 'Jane Doe', personNumber: '987654321015')),
           ],
           selectedVehicle: Vehicle(
-              id: 1,
+              id: '1',
               regNumber: 'ABC123',
               vehicleType: 'Bil',
               owner: Person(
-                  id: 1,
+                  id: '1',
                   name: 'John Doe',
                   personNumber: '123456789016')), // Correct selected vehicle
         ),

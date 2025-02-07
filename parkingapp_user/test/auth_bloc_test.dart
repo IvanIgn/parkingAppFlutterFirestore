@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
-import 'package:client_repositories/async_http_repos.dart';
+import 'package:firebase_repositories/firebase_repositories.dart';
 import 'package:parkingapp_user/blocs/auth/auth_bloc.dart';
 import 'package:shared/shared.dart';
 
@@ -54,8 +54,8 @@ void main() {
 
   group('LoginRequested', () {
     final mockPersons = [
-      Person(id: 1, name: 'John Doe', personNumber: '199001011234'),
-      Person(id: 2, name: 'Jane Loen', personNumber: '199002022345'),
+      Person(id: '1', name: 'John Doe', personNumber: '199001011234'),
+      Person(id: '2', name: 'Jane Loen', personNumber: '199002022345'),
     ];
 
     blocTest<AuthBloc, AuthState>(

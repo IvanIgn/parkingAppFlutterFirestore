@@ -2,7 +2,7 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:parkingapp_admin/blocs/vehicle/vehicle_bloc.dart';
-import 'package:client_repositories/async_http_repos.dart';
+import 'package:firebase_repositories/firebase_repositories.dart';
 import 'package:shared/shared.dart';
 
 class MockVehicleRepository extends Mock implements VehicleRepository {}
@@ -32,8 +32,8 @@ void main() {
       'emits [VehicleLoading, VehicleLoaded] when loading vehicles is successful',
       build: () {
         when(() => mockRepository.getAllVehicles()).thenAnswer((_) async => [
-              Vehicle(id: 1, regNumber: 'ABC123', vehicleType: 'Bil'),
-              Vehicle(id: 2, regNumber: 'XYZ789', vehicleType: 'Lastbil'),
+              Vehicle(id: '1', regNumber: 'ABC123', vehicleType: 'Bil'),
+              Vehicle(id: '2', regNumber: 'XYZ789', vehicleType: 'Lastbil'),
             ]);
         return vehicleBloc;
       },
@@ -41,8 +41,8 @@ void main() {
       expect: () => [
         VehicleLoading(),
         VehicleLoaded([
-          Vehicle(id: 1, regNumber: 'ABC123', vehicleType: 'Bil'),
-          Vehicle(id: 2, regNumber: 'XYZ789', vehicleType: 'Lastbil'),
+          Vehicle(id: '1', regNumber: 'ABC123', vehicleType: 'Bil'),
+          Vehicle(id: '2', regNumber: 'XYZ789', vehicleType: 'Lastbil'),
         ]),
       ],
       verify: (_) {
@@ -70,7 +70,8 @@ void main() {
   });
 
   group('AddVehicle', () {
-    final newVehicle = Vehicle(id: 3, regNumber: 'DEF456', vehicleType: 'Bil');
+    final newVehicle =
+        Vehicle(id: '3', regNumber: 'DEF456', vehicleType: 'Bil');
 
     // Test case for adding a vehicle successfully
     blocTest<VehicleBloc, VehicleState>(
@@ -80,10 +81,11 @@ void main() {
         // Simulate repository creating a vehicle
         when(() => mockRepository.createVehicle(any())).thenAnswer(
           (_) async => Vehicle(
-            id: 3,
+            id: '3',
             regNumber: 'DEF456',
             vehicleType: 'Bil',
-            owner: Person(id: 3, name: 'Jake Bill', personNumber: '1260560020'),
+            owner:
+                Person(id: '3', name: 'Jake Bill', personNumber: '1260560020'),
           ),
         );
 
@@ -91,35 +93,35 @@ void main() {
         when(() => mockRepository.getAllVehicles()).thenAnswer(
           (_) async => [
             Vehicle(
-              id: 1,
+              id: '1',
               regNumber: 'ABC123',
               vehicleType: 'Bil',
               owner:
-                  Person(id: 1, name: 'John Doe', personNumber: '1234567890'),
+                  Person(id: '1', name: 'John Doe', personNumber: '1234567890'),
             ),
             Vehicle(
-              id: 2,
+              id: '2',
               regNumber: 'XYZ789',
               vehicleType: 'Lastbil',
-              owner:
-                  Person(id: 2, name: 'Jane Jones', personNumber: '1243560000'),
+              owner: Person(
+                  id: '2', name: 'Jane Jones', personNumber: '1243560000'),
             ),
             Vehicle(
-              id: 3,
+              id: '3',
               regNumber: 'DEF456',
               vehicleType: 'Bil',
-              owner:
-                  Person(id: 3, name: 'Jake Bill', personNumber: '1260560020'),
+              owner: Person(
+                  id: '3', name: 'Jake Bill', personNumber: '1260560020'),
             ),
           ],
         );
       },
       act: (bloc) => bloc.add(AddVehicle(
         Vehicle(
-          id: 3,
+          id: '3',
           regNumber: 'DEF456',
           vehicleType: 'Bil',
-          owner: Person(id: 3, name: 'Jake Bill', personNumber: '1260560020'),
+          owner: Person(id: '3', name: 'Jake Bill', personNumber: '1260560020'),
         ),
       )), // Trigger AddVehicleEvent with a vehicle
       expect: () => [
@@ -127,23 +129,25 @@ void main() {
         VehicleLoaded([
           // Then, the loaded state is emitted with the updated list of vehicles
           Vehicle(
-            id: 1,
+            id: '1',
             regNumber: 'ABC123',
             vehicleType: 'Bil',
-            owner: Person(id: 1, name: 'John Doe', personNumber: '1234567890'),
+            owner:
+                Person(id: '1', name: 'John Doe', personNumber: '1234567890'),
           ),
           Vehicle(
-            id: 2,
+            id: '2',
             regNumber: 'XYZ789',
             vehicleType: 'Lastbil',
             owner:
-                Person(id: 2, name: 'Jane Jones', personNumber: '1243560000'),
+                Person(id: '2', name: 'Jane Jones', personNumber: '1243560000'),
           ),
           Vehicle(
-            id: 3,
+            id: '3',
             regNumber: 'DEF456',
             vehicleType: 'Bil',
-            owner: Person(id: 3, name: 'Jake Bill', personNumber: '1260560020'),
+            owner:
+                Person(id: '3', name: 'Jake Bill', personNumber: '1260560020'),
           ),
         ]), // After the vehicle is added, the loaded state is emitted
       ],
@@ -170,10 +174,10 @@ void main() {
 
   group('UpdateVehicle', () {
     final updatedVehicle = Vehicle(
-      id: 1,
+      id: '1',
       regNumber: 'NEW123',
       vehicleType: 'Bil',
-      owner: Person(id: 1, name: 'John Doe', personNumber: '1234567890'),
+      owner: Person(id: '1', name: 'John Doe', personNumber: '1234567890'),
     );
 
     blocTest<VehicleBloc, VehicleState>(
@@ -182,53 +186,54 @@ void main() {
       seed: () => VehicleLoaded([
         // Start in VehicleLoaded state
         Vehicle(
-          id: 1,
+          id: '1',
           regNumber: 'OLD123',
           vehicleType: 'Bil',
-          owner: Person(id: 1, name: 'John Doe', personNumber: '1234567890'),
+          owner: Person(id: '1', name: 'John Doe', personNumber: '1234567890'),
         ),
         Vehicle(
-          id: 2,
+          id: '2',
           regNumber: 'XYZ789',
           vehicleType: 'Bil',
-          owner: Person(id: 2, name: 'Jane Doe', personNumber: '9876543210'),
+          owner: Person(id: '2', name: 'Jane Doe', personNumber: '9876543210'),
         ),
       ]),
       setUp: () {
         // Mock repository methods
         when(() => mockRepository.updateVehicle(any(), any())).thenAnswer(
           (_) async => Vehicle(
-            id: 1,
+            id: '1',
             regNumber: 'NEW123',
             vehicleType: 'Bil',
-            owner: Person(id: 1, name: 'John Doe', personNumber: '1234567890'),
+            owner:
+                Person(id: '1', name: 'John Doe', personNumber: '1234567890'),
           ),
         );
         when(() => mockRepository.getAllVehicles()).thenAnswer(
           (_) async => [
             Vehicle(
-              id: 1,
+              id: '1',
               regNumber: 'NEW123',
               vehicleType: 'Bil',
               owner:
-                  Person(id: 1, name: 'John Doe', personNumber: '1234567890'),
+                  Person(id: '1', name: 'John Doe', personNumber: '1234567890'),
             ),
             Vehicle(
-              id: 2,
+              id: '2',
               regNumber: 'XYZ789',
               vehicleType: 'Bil',
               owner:
-                  Person(id: 2, name: 'Jane Doe', personNumber: '9876543210'),
+                  Person(id: '2', name: 'Jane Doe', personNumber: '9876543210'),
             ),
           ],
         );
       },
       act: (bloc) => bloc.add(UpdateVehicle(
         Vehicle(
-          id: 1,
+          id: '1',
           regNumber: 'NEW123',
           vehicleType: 'Bil',
-          owner: Person(id: 1, name: 'John Doe', personNumber: '1234567890'),
+          owner: Person(id: '1', name: 'John Doe', personNumber: '1234567890'),
         ),
       )),
       expect: () => [
@@ -237,16 +242,18 @@ void main() {
         VehicleLoaded([
           // Updated list of vehicles
           Vehicle(
-            id: 1,
+            id: '1',
             regNumber: 'NEW123',
             vehicleType: 'Bil',
-            owner: Person(id: 1, name: 'John Doe', personNumber: '1234567890'),
+            owner:
+                Person(id: '1', name: 'John Doe', personNumber: '1234567890'),
           ),
           Vehicle(
-            id: 2,
+            id: '2',
             regNumber: 'XYZ789',
             vehicleType: 'Bil',
-            owner: Person(id: 2, name: 'Jane Doe', personNumber: '9876543210'),
+            owner:
+                Person(id: '2', name: 'Jane Doe', personNumber: '9876543210'),
           ),
         ]),
       ],
@@ -263,10 +270,10 @@ void main() {
       },
       act: (bloc) => bloc.add(UpdateVehicle(
         Vehicle(
-          id: 1,
+          id: '1',
           regNumber: 'NEW123',
           vehicleType: 'Bil',
-          owner: Person(id: 1, name: 'John Doe', personNumber: '1234567890'),
+          owner: Person(id: '1', name: 'John Doe', personNumber: '1234567890'),
         ),
       )), // Trigger UpdateVehicle with an updated vehicle
       expect: () => [
@@ -278,7 +285,7 @@ void main() {
   });
 
   group('DeleteVehicle', () {
-    const vehicleId = 1;
+    const vehicleId = '1';
 
     blocTest<VehicleBloc, VehicleState>(
       'DeleteVehicle emits [VehicleLoading, VehicleDeleted, VehicleLoaded] when delete is successful',
@@ -287,18 +294,19 @@ void main() {
         // Mock deleteVehicle to return a dummy Vehicle
         when(() => mockRepository.deleteVehicle(any())).thenAnswer(
           (_) async => Vehicle(
-            id: 1,
+            id: '1',
             regNumber: 'ABC123',
             vehicleType: 'Bil',
-            owner: Person(id: 1, name: 'John Doe', personNumber: '1234567890'),
+            owner:
+                Person(id: '1', name: 'John Doe', personNumber: '1234567890'),
           ), // Return a dummy Vehicle
         );
         when(() => mockRepository.getAllVehicles()).thenAnswer(
           (_) async => [], // Return an empty list after deletion
         );
       },
-      act: (bloc) => bloc.add(
-          const DeleteVehicle(1)), // Trigger DeleteVehicle with a vehicle ID
+      act: (bloc) => bloc.add(const DeleteVehicle(
+          vehicleId)), // Trigger DeleteVehicle with a vehicle ID
       expect: () => [
         VehicleLoading(), // First, the loading state is emitted
         VehicleDeleted(), // Then, the deleted state is emitted

@@ -9,11 +9,10 @@ environment:
 
 # Add regular dependencies here.
 dependencies:
+  # path: ^1.8.0
   http: ^1.2.2
-  shared:
+  shared: 
     path: '../shared'
-  server:
-    path: '../server'
 
 dev_dependencies:
   lints: ^4.0.0

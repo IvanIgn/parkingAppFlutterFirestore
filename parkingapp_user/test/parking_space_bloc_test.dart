@@ -4,7 +4,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:shared/shared.dart';
-import 'package:client_repositories/async_http_repos.dart';
+import 'package:firebase_repositories/firebase_repositories.dart';
 import 'package:parkingapp_user/blocs/parking_space/parking_space_bloc.dart';
 
 class MockParkingSpaceRepository extends Mock
@@ -86,8 +86,8 @@ void main() {
 
   group('LoadParkingSpaces', () {
     final parkingSpaces = [
-      ParkingSpace(id: 1, address: 'Testadress 10', pricePerHour: 100),
-      ParkingSpace(id: 2, address: 'Testadress 20', pricePerHour: 200),
+      ParkingSpace(id: '1', address: 'Testadress 10', pricePerHour: 100),
+      ParkingSpace(id: '2', address: 'Testadress 20', pricePerHour: 200),
     ];
 
     blocTest<ParkingSpaceBloc, ParkingSpaceState>(
@@ -141,7 +141,7 @@ void main() {
 
   group('SelectParkingSpace', () {
     final parkingSpace =
-        ParkingSpace(id: 1, address: 'Testadress 10', pricePerHour: 100);
+        ParkingSpace(id: '1', address: 'Testadress 10', pricePerHour: 100);
 
     blocTest<ParkingSpaceBloc, ParkingSpaceState>(
       'updates selected parking space in state',
@@ -164,7 +164,7 @@ void main() {
 
   group('DeselectParkingSpace', () {
     final parkingSpace =
-        ParkingSpace(id: 1, address: 'Testadress 10', pricePerHour: 100);
+        ParkingSpace(id: '1', address: 'Testadress 10', pricePerHour: 100);
 
     blocTest<ParkingSpaceBloc, ParkingSpaceState>(
       'clears selected parking space in state',
@@ -187,18 +187,18 @@ void main() {
 
   group('StartParking', () {
     final parkingSpace =
-        ParkingSpace(id: 2, address: 'Testadress 20', pricePerHour: 200);
+        ParkingSpace(id: '2', address: 'Testadress 20', pricePerHour: 200);
     final parking = Parking(
-      id: 2,
+      id: '2',
       startTime: DateTime(2025, 1, 28, 10, 0, 0),
       endTime: DateTime(2025, 1, 28, 11, 0, 0),
       parkingSpace: parkingSpace,
       vehicle: Vehicle(
-          id: 0,
+          id: '0',
           regNumber: 'ABC222',
           vehicleType: 'Lastbil',
           owner:
-              Person(id: 0, name: 'TestNamn2', personNumber: '199501072222')),
+              Person(id: '0', name: 'TestNamn2', personNumber: '199501072222')),
 
       // Before the mocked DateTime.now
     );
@@ -234,7 +234,7 @@ void main() {
 
   group('StopParking', () {
     final parkingSpace =
-        ParkingSpace(id: 1, address: 'Testadress 10', pricePerHour: 100);
+        ParkingSpace(id: '1', address: 'Testadress 10', pricePerHour: 100);
 
     blocTest<ParkingSpaceBloc, ParkingSpaceState>(
       'stops parking and updates state',

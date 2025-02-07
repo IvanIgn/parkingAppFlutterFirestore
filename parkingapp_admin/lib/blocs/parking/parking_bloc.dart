@@ -1,6 +1,6 @@
 // monitor_parkings_bloc.dart
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:client_repositories/async_http_repos.dart';
+import 'package:firebase_repositories/firebase_repositories.dart';
 import 'package:bloc/bloc.dart';
 import 'package:shared/shared.dart';
 import 'package:equatable/equatable.dart';
@@ -52,7 +52,8 @@ class ParkingsBloc extends Bloc<MonitorParkingsEvent, MonitorParkingsState> {
     Emitter<MonitorParkingsState> emit,
   ) async {
     try {
-      await parkingRepository.updateParking(event.parkingId, event.parking);
+      await parkingRepository.updateParking(
+          event.parkingId.toString(), event.parking);
       add(LoadParkingsEvent());
     } catch (e) {
       emit(MonitorParkingsErrorState(
@@ -65,7 +66,7 @@ class ParkingsBloc extends Bloc<MonitorParkingsEvent, MonitorParkingsState> {
     Emitter<MonitorParkingsState> emit,
   ) async {
     try {
-      await parkingRepository.deleteParking(event.parkingId);
+      await parkingRepository.deleteParking(event.parkingId.toString());
       add(LoadParkingsEvent());
     } catch (e) {
       emit(MonitorParkingsErrorState(

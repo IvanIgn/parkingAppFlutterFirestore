@@ -2,7 +2,7 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:parkingapp_admin/blocs/person/person_bloc.dart';
-import 'package:client_repositories/async_http_repos.dart';
+import 'package:firebase_repositories/firebase_repositories.dart';
 import 'package:shared/shared.dart';
 
 // Mock the PersonRepository
@@ -37,7 +37,7 @@ void main() {
       setUp: () {
         when(() => mockRepository.getAllPersons()).thenAnswer(
           (_) async => [
-            Person(id: 1, name: 'John Doe', personNumber: '1234567890'),
+            Person(id: '1', name: 'John Doe', personNumber: '1234567890'),
           ],
         );
       },
@@ -47,7 +47,7 @@ void main() {
         PersonLoadingState(), // First, the loading state is emitted
         PersonLoadedState([
           // Then, the loaded state with persons is emitted
-          Person(id: 1, name: 'John Doe', personNumber: '1234567890'),
+          Person(id: '1', name: 'John Doe', personNumber: '1234567890'),
         ]),
       ],
     );
@@ -76,27 +76,27 @@ void main() {
         // Simulate repository creating a person
         when(() => mockRepository.createPerson(any())).thenAnswer(
           (_) async =>
-              Person(id: 1, name: 'John Doe', personNumber: '1234567890'),
+              Person(id: '1', name: 'John Doe', personNumber: '1234567890'),
         );
         // Simulate repository fetching the updated list of persons
         when(() => mockRepository.getAllPersons()).thenAnswer(
           (_) async => [
-            Person(id: 1, name: 'John Doe', personNumber: '1234567890'),
+            Person(id: '1', name: 'John Doe', personNumber: '1234567890'),
           ],
         );
       },
       act: (bloc) => bloc.add(AddPersonEvent(
-        Person(id: 1, name: 'John Doe', personNumber: '1234567890'),
+        Person(id: '1', name: 'John Doe', personNumber: '1234567890'),
       )), // Trigger AddPersonEvent with a person
       expect: () => [
         //  PersonLoadingState(), // First, the loading state is emitted
         //  PersonAddedState(Person(
-        //     id: 1,
+        //     id: '1',
         //     name: 'John Doe',
         //     personNumber: '1234567890')), // Then, the added state is emitted
         PersonLoadedState([
           // Finally, the updated list of persons is emitted
-          Person(id: 1, name: 'John Doe', personNumber: '1234567890'),
+          Person(id: '1', name: 'John Doe', personNumber: '1234567890'),
         ]),
       ],
     );
@@ -109,7 +109,7 @@ void main() {
         when(() => mockRepository.createPerson(any())).thenThrow(Exception());
       },
       act: (bloc) => bloc.add(AddPersonEvent(
-        Person(id: 1, name: 'John Doe', personNumber: '1234567890'),
+        Person(id: '1', name: 'John Doe', personNumber: '1234567890'),
       )), // Trigger AddPersonEvent with a person
       expect: () => [
         // PersonLoadingState(), // First, the loading state is emitted
@@ -125,28 +125,30 @@ void main() {
       setUp: () {
         when(() => mockRepository.updatePerson(any(), any())).thenAnswer(
           (_) async => Person(
-              id: 1, name: 'John Doe Updated', personNumber: '199876543211'),
+              id: '1', name: 'John Doe Updated', personNumber: '199876543211'),
         );
         when(() => mockRepository.getAllPersons()).thenAnswer(
           (_) async => [
             Person(
-                id: 1, name: 'John Doe Updated', personNumber: '199876543211'),
+                id: '1',
+                name: 'John Doe Updated',
+                personNumber: '199876543211'),
           ],
         );
       },
       act: (bloc) => bloc.add(UpdatePersonEvent(
-        Person(id: 1, name: 'John Doe Updated', personNumber: '199876543211'),
+        Person(id: '1', name: 'John Doe Updated', personNumber: '199876543211'),
       )), // Trigger UpdatePersonEvent with an updated person
       expect: () => [
         PersonLoadingState(), // First, the loading state is emitted
         PersonUpdatedState(Person(
-            id: 1,
+            id: '1',
             name: 'John Doe Updated',
             personNumber:
                 '199876543211')), // Then, the updated state is emitted
         // PersonLoadedState([
         // Finally, the updated list of persons is emitted
-        //   Person(id: 1, name: 'John Doe Updated', personNumber: '199876543211'),
+        //   Person(id: '1', name: 'John Doe Updated', personNumber: '199876543211'),
         // ]),
       ],
     );
@@ -161,7 +163,7 @@ void main() {
             .thenThrow(Exception());
       },
       act: (bloc) => bloc.add(UpdatePersonEvent(
-        Person(id: 1, name: 'John Doe Updated', personNumber: '0987654321'),
+        Person(id: '1', name: 'John Doe Updated', personNumber: '0987654321'),
       )), // Trigger UpdatePersonEvent with an updated person
       expect: () => [
         PersonLoadingState(), // First, the loading state is emitted
@@ -178,13 +180,13 @@ void main() {
     setUp: () {
       when(() => mockRepository.deletePerson(any())).thenAnswer(
         (_) async => Person(
-            id: 1, name: 'John Doe Updated', personNumber: '199876543211'),
+            id: '1', name: 'John Doe Updated', personNumber: '199876543211'),
       );
       when(() => mockRepository.getAllPersons()).thenAnswer(
         (_) async => [],
       );
     },
-    act: (bloc) => bloc.add(const DeletePersonEvent(1)),
+    act: (bloc) => bloc.add(const DeletePersonEvent("1")),
     expect: () => [
       PersonLoadingState(),
       PersonLoadedState(const []),
@@ -199,7 +201,7 @@ void main() {
       when(() => mockRepository.deletePerson(any())).thenThrow(Exception());
     },
     act: (bloc) => bloc.add(const DeletePersonEvent(
-        1)), // Trigger DeletePersonEvent with a person ID
+        "1")), // Trigger DeletePersonEvent with a person ID
     expect: () => [
       PersonLoadingState(), // First, the loading state is emitted
       PersonErrorState(

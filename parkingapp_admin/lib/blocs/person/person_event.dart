@@ -35,7 +35,7 @@ class UpdatePersonEvent extends PersonEvent {
 
 /// Event to delete a person by their ID.
 class DeletePersonEvent extends PersonEvent {
-  final int personId;
+  final String personId;
 
   const DeletePersonEvent(this.personId);
 

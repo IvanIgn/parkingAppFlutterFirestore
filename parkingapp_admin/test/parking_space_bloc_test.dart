@@ -1,7 +1,7 @@
 import 'package:bloc_test/bloc_test.dart' show blocTest;
 import 'package:mocktail/mocktail.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:client_repositories/async_http_repos.dart';
+import 'package:firebase_repositories/firebase_repositories.dart';
 import 'package:shared/shared.dart';
 import 'package:parkingapp_admin/blocs/parking_space/parking_space_bloc.dart';
 
@@ -33,14 +33,16 @@ void main() {
       'emits [ParkingSpaceLoading, ParkingSpaceLoaded] when load is successful',
       build: () {
         when(() => mockRepository.getAllParkingSpaces()).thenAnswer((_) async =>
-            [ParkingSpace(id: 1, address: 'Testadress 10', pricePerHour: 100)]);
+            [
+              ParkingSpace(id: '1', address: 'Testadress 10', pricePerHour: 100)
+            ]);
         return parkingSpaceBloc;
       },
       act: (bloc) => bloc.add(const LoadParkingSpaces()),
       expect: () => [
         ParkingSpaceLoading(),
         ParkingSpaceLoaded([
-          ParkingSpace(id: 1, address: 'Testadress 10', pricePerHour: 100),
+          ParkingSpace(id: '1', address: 'Testadress 10', pricePerHour: 100),
         ]),
       ],
       verify: (_) {
@@ -68,7 +70,7 @@ void main() {
 
   group('AddParkingSpace', () {
     final newParkingSpace =
-        ParkingSpace(id: 3, address: 'Testadress 30', pricePerHour: 300);
+        ParkingSpace(id: '3', address: 'Testadress 30', pricePerHour: 300);
 
     blocTest<ParkingSpaceBloc, ParkingSpaceState>(
       'emits [ParkingSpaceLoaded] with updated list when add is successful',
@@ -125,24 +127,25 @@ void main() {
         // Simulate repository updating a parking space
         when(() => mockRepository.updateParkingSpace(any(), any())).thenAnswer(
           (_) async => ParkingSpace(
-              id: 1, address: 'Updated Address', pricePerHour: 200),
+              id: '1', address: 'Updated Address', pricePerHour: 200),
         );
         // Simulate repository fetching the updated list of parking spaces
         when(() => mockRepository.getAllParkingSpaces()).thenAnswer(
           (_) async => [
-            ParkingSpace(id: 1, address: 'Updated Address', pricePerHour: 200),
+            ParkingSpace(
+                id: '1', address: 'Updated Address', pricePerHour: 200),
           ],
         );
       },
       act: (bloc) => bloc.add(UpdateParkingSpace(
-        ParkingSpace(id: 1, address: 'Updated Address', pricePerHour: 200),
+        ParkingSpace(id: '1', address: 'Updated Address', pricePerHour: 200),
       )), // Trigger UpdateParkingSpace with an updated parking space
       expect: () => [
         ParkingSpaceLoading(), // First, the loading state is emitted
         ParkingSpaceUpdated(), // Then, the updated state is emitted
         ParkingSpaceLoaded([
           // Finally, the updated list of parking spaces is emitted
-          ParkingSpace(id: 1, address: 'Updated Address', pricePerHour: 200),
+          ParkingSpace(id: '1', address: 'Updated Address', pricePerHour: 200),
         ]),
       ],
     );
@@ -157,7 +160,7 @@ void main() {
             .thenThrow(Exception());
       },
       act: (bloc) => bloc.add(UpdateParkingSpace(
-        ParkingSpace(id: 1, address: 'Updated Address', pricePerHour: 200),
+        ParkingSpace(id: '1', address: 'Updated Address', pricePerHour: 200),
       )), // Trigger UpdateParkingSpace with the updated parking space
       expect: () => [
         ParkingSpaceLoading(), // First, the loading state is emitted
@@ -168,7 +171,7 @@ void main() {
   });
 
   group('DeleteParkingSpace', () {
-    const parkingSpaceId = 1;
+    const parkingSpaceId = '1';
 
     blocTest<ParkingSpaceBloc, ParkingSpaceState>(
       'DeleteParkingSpace emits [ParkingSpaceLoading, ParkingSpaceDeleted, ParkingSpaceLoaded] when delete is successful',
@@ -177,7 +180,7 @@ void main() {
         // Mock deleteParkingSpace to return a dummy ParkingSpace
         when(() => mockRepository.deleteParkingSpace(any())).thenAnswer(
           (_) async => ParkingSpace(
-            id: 1,
+            id: '1',
             address: 'Old Address',
             pricePerHour: 100,
           ), // Return a dummy ParkingSpace

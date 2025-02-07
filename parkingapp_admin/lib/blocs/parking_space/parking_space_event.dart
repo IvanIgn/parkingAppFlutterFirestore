@@ -30,7 +30,7 @@ class UpdateParkingSpace extends ParkingSpaceEvent {
 }
 
 class DeleteParkingSpace extends ParkingSpaceEvent {
-  final int parkingSpaceId;
+  final String parkingSpaceId;
 
   const DeleteParkingSpace(this.parkingSpaceId);
 

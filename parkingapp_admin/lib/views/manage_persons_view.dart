@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:client_repositories/async_http_repos.dart';
+import 'package:firebase_repositories/firebase_repositories.dart';
 import '../blocs/person/person_bloc.dart';
 import 'package:shared/shared.dart';
 
@@ -282,7 +282,7 @@ class _ManagePersonsViewState extends State<ManagePersonsView> {
             ),
             ElevatedButton(
               onPressed: () async {
-                context.read<PersonBloc>().add(DeletePersonEvent(person.id));
+                context.read<PersonBloc>().add(DeletePersonEvent((person.id)));
                 Navigator.of(context).pop();
               },
               child: const Text("Ta bort"),
