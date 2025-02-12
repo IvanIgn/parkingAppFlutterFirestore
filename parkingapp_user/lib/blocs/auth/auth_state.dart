@@ -16,22 +16,40 @@ class AuthLoggedIn extends AuthState {
   //final String id;
   final String name;
   final String personNumber;
+  final String email;
+  final String password;
 
-  const AuthLoggedIn({required this.name, required this.personNumber});
+  const AuthLoggedIn(
+      {/*required this.id,*/
+      required this.name,
+      required this.personNumber,
+      required this.email,
+      required this.password});
 
   @override
-  List<Object?> get props => [name, personNumber];
+  List<Object?> get props => [
+        name,
+        /*personNumber*/
+        email,
+        password
+      ];
 }
 
 class AuthAuthenticated extends AuthState {
   //final String id;
   final String name;
   final String personNumber;
+  final String email;
+  final String password;
 
-  const AuthAuthenticated({required this.name, required this.personNumber});
+  const AuthAuthenticated(
+      {required this.name,
+      required this.personNumber,
+      required this.email,
+      required this.password});
 
   @override
-  List<Object?> get props => [name, personNumber];
+  List<Object?> get props => [name, personNumber, email, password];
 }
 
 class AuthLoggedOut extends AuthState {}

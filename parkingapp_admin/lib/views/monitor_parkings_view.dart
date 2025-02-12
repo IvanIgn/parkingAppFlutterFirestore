@@ -69,11 +69,11 @@ class _ManageMonitorParkingViewState extends State<MonitorParkingsView> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Starttid: ${parking.startTime}',
+                        'Starttid: ${DateFormat('yyyy-MM-dd HH:mm').format(parking.startTime)}',
                         style: const TextStyle(fontSize: 14),
                       ),
                       Text(
-                        'Sluttid: ${parking.endTime}',
+                        'Sluttid: ${DateFormat('yyyy-MM-dd HH:mm').format(parking.endTime)}',
                         style: const TextStyle(fontSize: 14),
                       ),
                       Text(

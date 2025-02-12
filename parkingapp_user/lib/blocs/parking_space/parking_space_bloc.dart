@@ -150,6 +150,8 @@ class ParkingSpaceBloc extends Bloc<ParkingSpaceEvent, ParkingSpaceState> {
         id: loggedInPersonMap['id'],
         name: loggedInPersonMap['name'],
         personNumber: loggedInPersonMap['personNumber'],
+        email: loggedInPersonMap['email'],
+        authId: loggedInPersonMap['authId'],
       );
 
       // Helper method to load selected parking space and vehicle

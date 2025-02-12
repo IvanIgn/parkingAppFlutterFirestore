@@ -76,7 +76,7 @@ class _ManageVehiclesViewState extends State<ManageVehiclesView> {
                       ),
                       if (vehicle.owner != null)
                         Text(
-                          'Ägare: ${vehicle.owner?.name}, Personnummer: ${vehicle.owner?.personNumber}',
+                          'Ägare: ${vehicle.owner?.name}, Personnummer: ${vehicle.owner?.personNumber}, Email: ${vehicle.owner?.email}',
                           style: const TextStyle(fontSize: 14),
                         )
                       else
@@ -231,7 +231,11 @@ class _ManageVehiclesViewState extends State<ManageVehiclesView> {
                       regNumber: regNumber,
                       vehicleType: selectedVehicleType,
                       owner: selectedOwner ??
-                          Person(name: "Ingen ägare", personNumber: ''),
+                          Person(
+                              name: "Ingen ägare",
+                              personNumber: '',
+                              email: '',
+                              authId: ''),
                     );
 
                     context.read<VehicleBloc>().add(AddVehicle(newVehicle));
@@ -354,7 +358,11 @@ class _ManageVehiclesViewState extends State<ManageVehiclesView> {
                       regNumber: regNumber,
                       vehicleType: selectedVehicleType,
                       owner: selectedOwner ??
-                          Person(name: "Ingen ägare", personNumber: ''),
+                          Person(
+                              name: "Ingen ägare",
+                              personNumber: '',
+                              email: '',
+                              authId: ''),
                     );
 
                     context

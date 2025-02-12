@@ -14,14 +14,14 @@ class FetchPersonsEvent extends PersonEvent {
 }
 
 /// Event to add a new person.
-class AddPersonEvent extends PersonEvent {
-  final Person person;
+// class AddPersonEvent extends PersonEvent {
+//   final Person person;
 
-  const AddPersonEvent(this.person);
+//   const AddPersonEvent(this.person);
 
-  @override
-  List<Object?> get props => [person];
-}
+//   @override
+//   List<Object?> get props => [person];
+// }
 
 /// Event to update an existing person.
 class UpdatePersonEvent extends PersonEvent {
@@ -41,4 +41,34 @@ class DeletePersonEvent extends PersonEvent {
 
   @override
   List<Object?> get props => [personId];
+}
+
+class AddPersonEvent extends PersonEvent {
+  final String name;
+  final String personNum;
+  // final String confirmPersonNum;
+  final String email;
+//  final String confirmEmail;
+  final String password;
+  // final String confirmPassword;
+
+  const AddPersonEvent({
+    required this.name,
+    required this.personNum,
+    // required this.confirmPersonNum,
+    required this.email,
+    // required this.confirmEmail,
+    required this.password,
+    // required this.confirmPassword,
+  });
+  @override
+  List<Object> get props => [
+        name,
+        personNum,
+        // confirmPersonNum,
+        email,
+        // confirmEmail,
+        password,
+        // confirmPassword
+      ];
 }

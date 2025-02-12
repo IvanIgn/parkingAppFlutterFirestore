@@ -10,10 +10,16 @@ class RegistrationView extends StatelessWidget {
     final nameController = TextEditingController();
     final personNumController = TextEditingController();
     final confirmPersonNumController = TextEditingController();
+    final emailController = TextEditingController();
+    final confirmEmailController = TextEditingController();
+    final passwordController = TextEditingController();
+    final confirmPasswordController = TextEditingController();
 
     // Using ValueNotifier to manage error messages
     final nameErrorNotifier = ValueNotifier<String?>(null);
     final personNumErrorNotifier = ValueNotifier<String?>(null);
+    final emailErrorNotifier = ValueNotifier<String?>(null);
+    final passwordErrorNotifier = ValueNotifier<String?>(null);
 
     return Scaffold(
       appBar: AppBar(title: const Text("Registrera Dig")),
@@ -94,6 +100,62 @@ class RegistrationView extends StatelessWidget {
                               );
                             },
                           ),
+                          const SizedBox(height: 16),
+                          ValueListenableBuilder<String?>(
+                            valueListenable: emailErrorNotifier,
+                            builder: (context, error, _) {
+                              return TextField(
+                                controller: emailController,
+                                decoration: InputDecoration(
+                                  labelText: "Email",
+                                  errorText: error,
+                                  border: const OutlineInputBorder(),
+                                ),
+                              );
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                          ValueListenableBuilder<String?>(
+                            valueListenable: emailErrorNotifier,
+                            builder: (context, error, _) {
+                              return TextField(
+                                controller: confirmEmailController,
+                                decoration: InputDecoration(
+                                  labelText: "Bekräfta Email",
+                                  errorText: error,
+                                  border: const OutlineInputBorder(),
+                                ),
+                              );
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                          ValueListenableBuilder<String?>(
+                            valueListenable: passwordErrorNotifier,
+                            builder: (context, error, _) {
+                              return TextField(
+                                controller: passwordController,
+                                decoration: InputDecoration(
+                                  labelText: "Lösenord",
+                                  errorText: error,
+                                  border: const OutlineInputBorder(),
+                                ),
+                              );
+                            },
+                          ),
+                          const SizedBox(height: 16),
+                          ValueListenableBuilder<String?>(
+                            valueListenable: passwordErrorNotifier,
+                            builder: (context, error, _) {
+                              return TextField(
+                                controller: confirmPasswordController,
+                                decoration: InputDecoration(
+                                  labelText: "Bekräfta Lösenord",
+                                  errorText: error,
+                                  border: const OutlineInputBorder(),
+                                ),
+                              );
+                            },
+                          ),
                           const SizedBox(height: 24),
                           ElevatedButton(
                             onPressed: () {
@@ -102,10 +164,18 @@ class RegistrationView extends StatelessWidget {
                               final personNum = personNumController.text.trim();
                               final confirmPersonNum =
                                   confirmPersonNumController.text.trim();
+                              final email = emailController.text.trim();
+                              final confirmEmail =
+                                  confirmEmailController.text.trim();
+                              final password = passwordController.text.trim();
+                              final confirmPassword =
+                                  confirmPasswordController.text.trim();
 
                               // Reset error messages
                               nameErrorNotifier.value = null;
                               personNumErrorNotifier.value = null;
+                              emailErrorNotifier.value = null;
+                              passwordErrorNotifier.value = null;
 
                               // Validate fields
                               if (name.isEmpty) {
@@ -126,12 +196,40 @@ class RegistrationView extends StatelessWidget {
                                 return;
                               }
 
+                              if (email.isEmpty) {
+                                emailErrorNotifier.value =
+                                    "Email är obligatoriskt.";
+                                return;
+                              }
+
+                              if (email != confirmEmail) {
+                                emailErrorNotifier.value =
+                                    "Email matchar inte.";
+                                return;
+                              }
+
+                              if (password.isEmpty) {
+                                passwordErrorNotifier.value =
+                                    "Lösenord är obligatoriskt.";
+                                return;
+                              }
+
+                              if (password != confirmPassword) {
+                                passwordErrorNotifier.value =
+                                    "Lösenord matchar inte.";
+                                return;
+                              }
+
                               // Dispatch registration event if validation passes
                               context.read<RegistrationBloc>().add(
                                     RegistrationSubmitted(
                                       name: name,
                                       personNum: personNum,
                                       confirmPersonNum: confirmPersonNum,
+                                      email: email,
+                                      confirmEmail: confirmEmail,
+                                      password: password,
+                                      confirmPassword: confirmPassword,
                                     ),
                                   );
                             },

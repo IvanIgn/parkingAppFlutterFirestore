@@ -10,15 +10,16 @@ class VehicleManagementView extends StatefulWidget {
   const VehicleManagementView({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _VehicleManagementViewState createState() => _VehicleManagementViewState();
 }
 
 class _VehicleManagementViewState extends State<VehicleManagementView> {
-  late Future<List<Vehicle>> _vehiclesFuture;
-
   String? loggedInName;
   String? loggedInPersonNum;
   String? loggedInPersonId;
+  String? loggedInPersonEmail;
+  String? loggedInPersonAuthId;
   Vehicle? _selectedVehicle;
   final VehicleRepository repository = VehicleRepository.instance;
 
@@ -30,16 +31,77 @@ class _VehicleManagementViewState extends State<VehicleManagementView> {
     _refreshVehicles(); // Load saved vehicle on initialization
   }
 
+  // Future<void> _loadLoggedInUser() async {
+  //   final prefs = await SharedPreferences.getInstance();
+
+  //   // setState(() {
+  //   //   final loggedInPerson = prefs.getString('loggedInPerson');
+  //   //   loggedInName = json.decode(loggedInPerson!)['name'];
+  //   //   loggedInPersonNum = json.decode(loggedInPerson)['personNumber'];
+  //   //   loggedInPersonEmail = json.decode(loggedInPerson)['email'];
+  //   //   //loggedInPersonId = json.decode(loggedInPerson)['id'];
+  //   //   loggedInPersonAuthId = json.decode(loggedInPerson)['authId'];
+  //   //   // loggedInName = prefs.getString('loggedInName');
+  //   //   // loggedInPersonNum = prefs.getString('loggedInPersonNum');
+  //   // });
+
+  //   setState(() {
+  //     final loggedInPerson = prefs.getString('loggedInPerson');
+  //     loggedInName = json.decode(loggedInPerson!)['name'];
+  //     loggedInPersonNum = json.decode(loggedInPerson)['personNumber'];
+  //     loggedInPersonEmail = json.decode(loggedInPerson)['email'];
+  //     loggedInPersonAuthId = json.decode(loggedInPerson)['authId'];
+  //   });
+
+  //   // Dispatch the LoadVehiclesByPerson event with the logged-in user's ID
+  //   BlocProvider.of<VehicleBloc>(context).add(LoadVehiclesByPerson(
+  //       Person(
+  //         name: loggedInName!,
+  //         personNumber: loggedInPersonNum!,
+  //         email: loggedInPersonEmail!,
+  //         authId: loggedInPersonAuthId!,
+  //       ),
+  //       loggedInPersonAuthId!));
+  // }
+
   Future<void> _loadLoggedInUser() async {
     final prefs = await SharedPreferences.getInstance();
+    final loggedInPerson = prefs.getString('loggedInPerson');
 
-    setState(() {
-      final loggedInPerson = prefs.getString('loggedInPerson');
-      loggedInName = json.decode(loggedInPerson!)['name'];
-      loggedInPersonNum = json.decode(loggedInPerson)['personNumber'];
-      // loggedInName = prefs.getString('loggedInName');
-      // loggedInPersonNum = prefs.getString('loggedInPersonNum');
-    });
+    if (loggedInPerson == null) {
+      print('❌ No logged-in user found in SharedPreferences');
+      return;
+    }
+
+    try {
+      final loggedInPersonData =
+          json.decode(loggedInPerson) as Map<String, dynamic>;
+
+      setState(() {
+        loggedInName = loggedInPersonData['name'] ?? 'Unknown';
+        loggedInPersonNum = loggedInPersonData['personNumber'] ?? '';
+        loggedInPersonEmail = loggedInPersonData['email'] ?? '';
+        loggedInPersonAuthId = loggedInPersonData['authId'] ?? '';
+      });
+
+      if (loggedInPersonAuthId == null || loggedInPersonAuthId!.isEmpty) {
+        print('❌ Logged-in user authId is missing');
+        return;
+      }
+
+      // Dispatch the LoadVehiclesByPerson event with the logged-in user's ID
+      BlocProvider.of<VehicleBloc>(context).add(LoadVehiclesByPerson(
+        Person(
+          name: loggedInName ?? 'Unknown',
+          personNumber: loggedInPersonNum ?? '',
+          email: loggedInPersonEmail ?? '',
+          authId: loggedInPersonAuthId!,
+        ),
+        loggedInPersonAuthId!,
+      ));
+    } catch (e) {
+      print('❌ Failed to decode logged-in user data: $e');
+    }
   }
 
   Future<void> _loadSelectedVehicle() async {
@@ -66,6 +128,38 @@ class _VehicleManagementViewState extends State<VehicleManagementView> {
     }
   }
 
+  // Future<void> _loadSelectedVehicle() async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   final selectedVehicleJson = prefs.getString('selectedVehicle');
+
+  //   if (selectedVehicleJson != null) {
+  //     final Map<String, dynamic> vehicleData = json.decode(selectedVehicleJson);
+  //     final Vehicle selectedVehicle = Vehicle.fromJson(vehicleData);
+
+  //     final exists = await _regNumberExists(selectedVehicle.regNumber);
+  //     if (exists) {
+  //       setState(() {
+  //         _selectedVehicle = selectedVehicle;
+  //       });
+  //     } else {
+  //       await prefs.remove('selectedVehicle');
+  //       setState(() {
+  //         _selectedVehicle = null;
+  //       });
+  //     }
+  //   }
+  // }
+
+  // Future<void> _saveSelectedVehicle(Vehicle vehicle) async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   final vehicleJson = json.encode(vehicle.toJson());
+
+  //   await prefs.setString('selectedVehicle', vehicleJson);
+  //   setState(() {
+  //     _selectedVehicle = vehicle;
+  //   });
+  // }
+
   Future<void> _saveSelectedVehicle(Vehicle vehicle) async {
     final prefs = await SharedPreferences.getInstance();
     final vehicleJson = json.encode(vehicle.toJson());
@@ -86,6 +180,7 @@ class _VehicleManagementViewState extends State<VehicleManagementView> {
 
     if (isParkingActive) {
       // If parking is active, prevent vehicle unselection
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text("Stoppa parkeringen först"),
@@ -120,7 +215,7 @@ class _VehicleManagementViewState extends State<VehicleManagementView> {
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Text(
-                'Inloggad som: $loggedInName (Personnummer: $loggedInPersonNum)',
+                'Inloggad som: $loggedInName (Personnummer: $loggedInPersonNum, E-post: $loggedInPersonEmail)',
                 style:
                     const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
               ),
@@ -152,10 +247,7 @@ class _VehicleManagementViewState extends State<VehicleManagementView> {
                     ),
                   );
                 } else if (state is VehiclesLoaded) {
-                  final vehiclesList = state.vehicles
-                      .where((vehicle) =>
-                          vehicle.owner?.personNumber == loggedInPersonNum)
-                      .toList();
+                  final vehiclesList = state.vehicles;
 
                   if (vehiclesList.isEmpty) {
                     return const Center(
@@ -171,8 +263,7 @@ class _VehicleManagementViewState extends State<VehicleManagementView> {
                     itemCount: vehiclesList.length,
                     itemBuilder: (context, index) {
                       final vehicle = vehiclesList[index];
-                      final isSelected =
-                          _selectedVehicle?.id == vehicle.id; // Check selection
+                      final isSelected = _selectedVehicle?.id == vehicle.id;
                       return ListTile(
                         title: Text(
                           'Fordon ID: ${vehicle.id}',
@@ -203,39 +294,32 @@ class _VehicleManagementViewState extends State<VehicleManagementView> {
                             ElevatedButton(
                               onPressed: () async {
                                 if (isSelected) {
-                                  // Check if parking is active
                                   final prefs =
                                       await SharedPreferences.getInstance();
                                   final isParkingActive =
                                       prefs.getBool('isParkingActive') ?? false;
 
                                   if (isParkingActive) {
-                                    // Show the message if parking is active
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
-                                        content:
-                                            Text("Stoppa parkeringen först"),
-                                        duration: Duration(seconds: 1),
-                                      ),
+                                          content:
+                                              Text("Stoppa parkeringen först")),
                                     );
                                     return;
                                   }
 
-                                  // Clear the selected vehicle
                                   await prefs.remove('selectedVehicle');
                                   setState(() {
-                                    _selectedVehicle =
-                                        null; // Reset selected vehicle
+                                    _selectedVehicle = null;
                                   });
                                 } else {
-                                  _selectVehicle(
-                                      vehicle); // Select a new vehicle
+                                  _selectVehicle(vehicle);
                                 }
                               },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: isSelected
-                                    ? Colors.green
-                                    : Colors.grey[800],
+                              style: ButtonStyle(
+                                backgroundColor: WidgetStateProperty.all(
+                                  isSelected ? Colors.green : Colors.grey,
+                                ),
                               ),
                               child: Text(isSelected ? "Valt" : "Välj"),
                             ),
@@ -285,102 +369,6 @@ class _VehicleManagementViewState extends State<VehicleManagementView> {
     );
   }
 
-//   void _showAddVehicleDialog(BuildContext context) {
-//     final TextEditingController regNumberController = TextEditingController();
-//     String selectedVehicleType = 'Bil';
-
-//     showDialog(
-//       context: context,
-//       barrierDismissible: false,
-//       builder: (BuildContext context) {
-//         return StatefulBuilder(
-//           builder: (context, setState) {
-//             return AlertDialog(
-//               title: const Text("Skapa nytt fordon"),
-//               content: SingleChildScrollView(
-//                 child: Column(
-//                   mainAxisSize: MainAxisSize.min,
-//                   children: [
-//                     TextField(
-//                       controller: regNumberController,
-//                       decoration: const InputDecoration(
-//                         labelText: 'Reg.nummer',
-//                       ),
-//                     ),
-//                     DropdownButtonFormField<String>(
-//                       value: selectedVehicleType,
-//                       items: <String>[
-//                         'Bil',
-//                         'Lastbil',
-//                         'Motorcykel',
-//                         'Moped',
-//                         'Annat'
-//                       ].map((String value) {
-//                         return DropdownMenuItem<String>(
-//                           value: value,
-//                           child: Text(value),
-//                         );
-//                       }).toList(),
-//                       onChanged: (newValue) {
-//                         setState(() {
-//                           selectedVehicleType = newValue!;
-//                         });
-//                       },
-//                       decoration: const InputDecoration(
-//                         labelText: 'Fordonstyp',
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//               ),
-//               actions: [
-//                 TextButton(
-//                   onPressed: () {
-//                     Navigator.of(context).pop();
-//                   },
-//                   child: const Text("Avbryt"),
-//                 ),
-//                 ElevatedButton(
-//                   onPressed: () async {
-//                     final regNumber = regNumberController.text;
-
-//                     if (!_isValidRegNumber(regNumber)) {
-//                       ScaffoldMessenger.of(context).showSnackBar(
-//                         const SnackBar(
-//                           content: Text(
-//                               "Fordons registreringsnummmer måste vara av formatet XXX999."),
-//                           duration: Duration(seconds: 2),
-//                         ),
-//                       );
-//                       return;
-//                     }
-//                     // Get the next available parking ID
-// //final vehicles = await VehicleRepository.instance.getAllVehicles();
-//                     // final nextVehicleId = vehicles.isNotEmpty ? vehicles.last.id + 1 : 1;
-//                     final newVehicle = Vehicle(
-//                       // id: nextVehicleId,
-//                       regNumber: regNumber,
-//                       vehicleType: selectedVehicleType,
-//                       owner: Person(
-//                           name: loggedInName!,
-//                           personNumber: loggedInPersonNum!),
-//                     );
-
-//                     // Add new vehicle using VehicleBloc
-//                     BlocProvider.of<VehicleBloc>(context)
-//                         .add(CreateVehicle(vehicle: newVehicle));
-
-//                     Navigator.of(context).pop(); // Close the dialog
-//                   },
-//                   child: const Text("Spara"),
-//                 ),
-//               ],
-//             );
-//           },
-//         );
-//       },
-//     );
-//   }
   void _showAddVehicleDialog(BuildContext context) {
     final TextEditingController regNumberController = TextEditingController();
     String selectedVehicleType = 'Bil';
@@ -469,15 +457,20 @@ class _VehicleManagementViewState extends State<VehicleManagementView> {
                       regNumber: regNumber,
                       vehicleType: selectedVehicleType,
                       owner: Person(
-                          name: loggedInName!,
-                          personNumber: loggedInPersonNum!),
+                        name: loggedInName!,
+                        personNumber: loggedInPersonNum!,
+                        email: loggedInPersonEmail!,
+                        authId: loggedInPersonAuthId!,
+                      ),
                     );
 
                     // Add new vehicle using VehicleBloc
+                    // ignore: use_build_context_synchronously
                     BlocProvider.of<VehicleBloc>(context)
                         .add(CreateVehicle(vehicle: newVehicle));
 
                     // Close the dialog
+                    // ignore: use_build_context_synchronously
                     Navigator.of(context).pop();
                   },
                   child: const Text("Spara"),
@@ -489,99 +482,6 @@ class _VehicleManagementViewState extends State<VehicleManagementView> {
       },
     );
   }
-
-  // void _showUpdateVehicleDialog(BuildContext context, Vehicle vehicle) {
-  //   final TextEditingController regNumberController =
-  //       TextEditingController(text: vehicle.regNumber);
-  //   String selectedVehicleType = vehicle.vehicleType;
-
-  //   showDialog(
-  //     context: context,
-  //     barrierDismissible: false,
-  //     builder: (BuildContext context) {
-  //       return StatefulBuilder(
-  //         builder: (context, setState) {
-  //           return AlertDialog(
-  //             title: const Text("Uppdatera fordon"),
-  //             content: SingleChildScrollView(
-  //               child: Column(
-  //                 mainAxisSize: MainAxisSize.min,
-  //                 children: [
-  //                   TextField(
-  //                     controller: regNumberController,
-  //                     decoration: const InputDecoration(
-  //                       labelText: 'Reg.nummer',
-  //                     ),
-  //                   ),
-  //                   DropdownButtonFormField<String>(
-  //                     value: selectedVehicleType,
-  //                     items: <String>[
-  //                       'Bil',
-  //                       'Lastbil',
-  //                       'Motorcykel',
-  //                       'Moped',
-  //                       'Annat'
-  //                     ].map((String value) {
-  //                       return DropdownMenuItem<String>(
-  //                         value: value,
-  //                         child: Text(value),
-  //                       );
-  //                     }).toList(),
-  //                     onChanged: (newValue) {
-  //                       setState(() {
-  //                         selectedVehicleType = newValue!;
-  //                       });
-  //                     },
-  //                     decoration: const InputDecoration(
-  //                       labelText: 'Fordonstyp',
-  //                     ),
-  //                   ),
-  //                 ],
-  //               ),
-  //             ),
-  //             actions: [
-  //               TextButton(
-  //                 onPressed: () {
-  //                   Navigator.of(context).pop();
-  //                 },
-  //                 child: const Text("Avbryt"),
-  //               ),
-  //               ElevatedButton(
-  //                 onPressed: () async {
-  //                   final regNumber = regNumberController.text;
-
-  //                   if (!_isValidRegNumber(regNumber)) {
-  //                     ScaffoldMessenger.of(context).showSnackBar(
-  //                       const SnackBar(
-  //                         content: Text(
-  //                             "Fordons registreringsnummmer måste vara av formatet XXX999."),
-  //                         duration: Duration(seconds: 2),
-  //                       ),
-  //                     );
-  //                     return;
-  //                   }
-
-  //                   final updatedVehicle = Vehicle(
-  //                       id: vehicle.id,
-  //                       regNumber: regNumber,
-  //                       vehicleType: selectedVehicleType,
-  //                       owner: vehicle.owner);
-
-  //                   // Update vehicle using VehicleBloc
-  //                   BlocProvider.of<VehicleBloc>(context)
-  //                       .add(UpdateVehicle(vehicle: updatedVehicle));
-
-  //                   Navigator.of(context).pop(); // Close the dialog
-  //                 },
-  //                 child: const Text("Spara"),
-  //               ),
-  //             ],
-  //           );
-  //         },
-  //       );
-  //     },
-  //   );
-  // }
 
   void _showUpdateVehicleDialog(BuildContext context, Vehicle vehicle) {
     final TextEditingController regNumberController =
@@ -677,9 +577,11 @@ class _VehicleManagementViewState extends State<VehicleManagementView> {
                     );
 
                     // Update vehicle using VehicleBloc
+                    // ignore: use_build_context_synchronously
                     BlocProvider.of<VehicleBloc>(context)
                         .add(UpdateVehicle(vehicle: updatedVehicle));
 
+                    // ignore: use_build_context_synchronously
                     Navigator.of(context).pop(); // Close the dialog
                   },
                   child: const Text("Spara"),

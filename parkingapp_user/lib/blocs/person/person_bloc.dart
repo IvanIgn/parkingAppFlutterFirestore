@@ -42,18 +42,6 @@ class PersonBloc extends Bloc<PersonEvent, PersonState> {
     }
   }
 
-  // Future<void> onLoadPersonsById(
-  //     Emitter<PersonState> emit, Person person) async {
-  //   emit(PersonsLoading());
-  //   try {
-  //     final personById =
-  //         await PersonRepository.instance.getPersonById(person.id);
-  //     emit(PersonLoaded(person: personById));
-  //   } catch (e) {
-  //     emit(PersonsError(message: e.toString()));
-  //   }
-  // }
-
   onLoadPersonsById(Emitter<PersonState> emit, Person person) async {
     emit(PersonsLoading()); // Emit loading state first
     try {
@@ -65,19 +53,6 @@ class PersonBloc extends Bloc<PersonEvent, PersonState> {
     }
   }
 
-  // onCreatePerson(Emitter<PersonState> emit, Person person) async {
-  //   try {
-  //     // await PersonRepository.instance.createPerson(
-  //     //     Person(name: person.name, personNumber: person.personNumber));
-  //     await PersonRepository.instance.createPerson(person);
-
-  //     _personList = await PersonRepository.instance.getAllPersons();
-  //     emit(PersonsLoaded(persons: _personList));
-  //   } catch (e) {
-  //     emit(PersonsError(message: e.toString()));
-  //   }
-  // }
-
   onCreatePerson(Emitter<PersonState> emit, Person person) async {
     try {
       await repository.createPerson(person); // Await person creation
@@ -88,30 +63,6 @@ class PersonBloc extends Bloc<PersonEvent, PersonState> {
       emit(PersonsError(message: e.toString())); // Handle error case
     }
   }
-
-  // onUpdatePerson(Emitter<PersonState> emit, Person person) async {
-  //   try {
-  //     await PersonRepository.instance.updatePerson(person.id, person);
-
-  //     add(LoadPersonsById(person: person));
-  //   } catch (e) {
-  //     emit(PersonsError(message: e.toString()));
-  //   }
-  // }
-
-  // onUpdatePerson(Emitter<PersonState> emit, Person person) async {
-  //   try {
-  //     // Attempt to update the person
-  //     await repository.updatePerson(person.id, person);
-
-  //     // If successful, fetch the updated person and emit success state
-  //     final updatedPerson = await repository.getPersonById(person.id);
-  //     emit(PersonLoaded(person: updatedPerson));
-  //   } catch (e) {
-  //     // If an error occurs, directly emit error state without emitting loading first
-  //     emit(PersonsError(message: e.toString()));
-  //   }
-  // }
 
   onUpdatePerson(
     UpdatePersons event,
@@ -126,17 +77,6 @@ class PersonBloc extends Bloc<PersonEvent, PersonState> {
       emit(PersonsError(message: e.toString())); // Emit error if update fails
     }
   }
-
-  // onDeletePerson(Emitter<PersonState> emit, Person person) async {
-  //   try {
-  //     await PersonRepository.instance.deletePerson(person.id);
-
-  //     _personList = await PersonRepository.instance.getAllPersons();
-  //     emit(PersonsLoaded(persons: _personList));
-  //   } catch (e) {
-  //     emit(PersonsError(message: e.toString()));
-  //   }
-  // }
 
   onDeletePerson(Emitter<PersonState> emit, Person person) async {
     try {

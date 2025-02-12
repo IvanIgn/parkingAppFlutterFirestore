@@ -1,7 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:firebase_repositories/firebase_repositories.dart';
-import 'package:equatable/equatable.dart';
 import 'package:shared/shared.dart';
+import 'package:equatable/equatable.dart';
 
 part 'vehicle_event.dart';
 part 'vehicle_state.dart';

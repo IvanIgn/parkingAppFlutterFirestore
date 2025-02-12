@@ -34,6 +34,19 @@ class PersonRepository {
     return Person.fromJson(json);
   }
 
+  Future<Person?> getByAuthId(String authId) async {
+    final snapshot =
+        await db.collection("persons").where("authId", isEqualTo: authId).get();
+
+    if (snapshot.docs.isEmpty) {
+      return null;
+    }
+
+    final json = snapshot.docs.first.data();
+
+    return Person.fromJson(json);
+  }
+
   Future<List<Person>> getAllPersons() async {
     final snapshots = await db.collection("persons").get();
 

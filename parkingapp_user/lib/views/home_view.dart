@@ -84,7 +84,8 @@ class _HomeViewState extends State<HomeView> {
         if (state is AuthAuthenticated) {
           return Scaffold(
             appBar: AppBar(
-              title: Text("Välkommen, ${state.name}!"),
+              title: Text(
+                  "Välkommen, ${state.name.isNotEmpty ? state.name : 'Användare'}!"),
               actions: [
                 IconButton(
                   icon: const Icon(Icons.logout),
