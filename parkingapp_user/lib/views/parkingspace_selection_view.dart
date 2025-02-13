@@ -209,6 +209,30 @@ class _SelectButton extends StatelessWidget {
   }
 }
 
+// class _ToggleParkingButton extends StatelessWidget {
+//   final bool isParkingActive;
+
+//   const _ToggleParkingButton({required this.isParkingActive});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return ElevatedButton(
+//       onPressed: () {
+//         final bloc = context.read<ParkingSpaceBloc>();
+//         if (isParkingActive) {
+//           bloc.add(StopParking());
+//         } else {
+//           bloc.add(StartParking());
+//         }
+//       },
+//       style: ElevatedButton.styleFrom(
+//         backgroundColor: isParkingActive ? Colors.red : Colors.orange,
+//       ),
+//       child: Text(isParkingActive ? "Stoppa Parkering" : "Starta Parkering"),
+//     );
+//   }
+// }
+
 class _ToggleParkingButton extends StatelessWidget {
   final bool isParkingActive;
 
@@ -217,7 +241,26 @@ class _ToggleParkingButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
-      onPressed: () {
+      onPressed: () async {
+        if (!isParkingActive) {
+          // Check for selected vehicle before starting parking
+          final prefs = await SharedPreferences.getInstance();
+          final selectedVehicle = prefs.getString('selectedVehicle');
+
+          if (selectedVehicle == null) {
+            // No vehicle selected, show Snackbar error
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content:
+                    Text("Välj först ett fordon innan du startar parkeringen."),
+                duration: Duration(seconds: 2),
+              ),
+            );
+            return;
+          }
+        }
+
+        // Dispatch the appropriate event
         final bloc = context.read<ParkingSpaceBloc>();
         if (isParkingActive) {
           bloc.add(StopParking());

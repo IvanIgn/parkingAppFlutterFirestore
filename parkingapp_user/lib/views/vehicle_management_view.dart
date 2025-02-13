@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:shared/shared.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:firebase_repositories/firebase_repositories.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:parkingapp_user/blocs/vehicle/vehicle_bloc.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -28,41 +29,7 @@ class _VehicleManagementViewState extends State<VehicleManagementView> {
     super.initState();
     _loadLoggedInUser();
     _loadSelectedVehicle();
-    _refreshVehicles(); // Load saved vehicle on initialization
   }
-
-  // Future<void> _loadLoggedInUser() async {
-  //   final prefs = await SharedPreferences.getInstance();
-
-  //   // setState(() {
-  //   //   final loggedInPerson = prefs.getString('loggedInPerson');
-  //   //   loggedInName = json.decode(loggedInPerson!)['name'];
-  //   //   loggedInPersonNum = json.decode(loggedInPerson)['personNumber'];
-  //   //   loggedInPersonEmail = json.decode(loggedInPerson)['email'];
-  //   //   //loggedInPersonId = json.decode(loggedInPerson)['id'];
-  //   //   loggedInPersonAuthId = json.decode(loggedInPerson)['authId'];
-  //   //   // loggedInName = prefs.getString('loggedInName');
-  //   //   // loggedInPersonNum = prefs.getString('loggedInPersonNum');
-  //   // });
-
-  //   setState(() {
-  //     final loggedInPerson = prefs.getString('loggedInPerson');
-  //     loggedInName = json.decode(loggedInPerson!)['name'];
-  //     loggedInPersonNum = json.decode(loggedInPerson)['personNumber'];
-  //     loggedInPersonEmail = json.decode(loggedInPerson)['email'];
-  //     loggedInPersonAuthId = json.decode(loggedInPerson)['authId'];
-  //   });
-
-  //   // Dispatch the LoadVehiclesByPerson event with the logged-in user's ID
-  //   BlocProvider.of<VehicleBloc>(context).add(LoadVehiclesByPerson(
-  //       Person(
-  //         name: loggedInName!,
-  //         personNumber: loggedInPersonNum!,
-  //         email: loggedInPersonEmail!,
-  //         authId: loggedInPersonAuthId!,
-  //       ),
-  //       loggedInPersonAuthId!));
-  // }
 
   Future<void> _loadLoggedInUser() async {
     final prefs = await SharedPreferences.getInstance();
@@ -82,6 +49,7 @@ class _VehicleManagementViewState extends State<VehicleManagementView> {
         loggedInPersonNum = loggedInPersonData['personNumber'] ?? '';
         loggedInPersonEmail = loggedInPersonData['email'] ?? '';
         loggedInPersonAuthId = loggedInPersonData['authId'] ?? '';
+        loggedInPersonId = loggedInPersonData['id'] ?? '';
       });
 
       if (loggedInPersonAuthId == null || loggedInPersonAuthId!.isEmpty) {
@@ -128,38 +96,6 @@ class _VehicleManagementViewState extends State<VehicleManagementView> {
     }
   }
 
-  // Future<void> _loadSelectedVehicle() async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   final selectedVehicleJson = prefs.getString('selectedVehicle');
-
-  //   if (selectedVehicleJson != null) {
-  //     final Map<String, dynamic> vehicleData = json.decode(selectedVehicleJson);
-  //     final Vehicle selectedVehicle = Vehicle.fromJson(vehicleData);
-
-  //     final exists = await _regNumberExists(selectedVehicle.regNumber);
-  //     if (exists) {
-  //       setState(() {
-  //         _selectedVehicle = selectedVehicle;
-  //       });
-  //     } else {
-  //       await prefs.remove('selectedVehicle');
-  //       setState(() {
-  //         _selectedVehicle = null;
-  //       });
-  //     }
-  //   }
-  // }
-
-  // Future<void> _saveSelectedVehicle(Vehicle vehicle) async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   final vehicleJson = json.encode(vehicle.toJson());
-
-  //   await prefs.setString('selectedVehicle', vehicleJson);
-  //   setState(() {
-  //     _selectedVehicle = vehicle;
-  //   });
-  // }
-
   Future<void> _saveSelectedVehicle(Vehicle vehicle) async {
     final prefs = await SharedPreferences.getInstance();
     final vehicleJson = json.encode(vehicle.toJson());
@@ -170,9 +106,9 @@ class _VehicleManagementViewState extends State<VehicleManagementView> {
     });
   }
 
-  void _refreshVehicles() {
-    BlocProvider.of<VehicleBloc>(context).add(LoadVehicles());
-  }
+  // void _refreshVehicles() {
+  //   BlocProvider.of<VehicleBloc>(context).add(LoadVehicles());
+  // }
 
   Future<void> _selectVehicle(Vehicle vehicle) async {
     final prefs = await SharedPreferences.getInstance();
@@ -191,6 +127,24 @@ class _VehicleManagementViewState extends State<VehicleManagementView> {
     }
 
     _saveSelectedVehicle(vehicle); // Save selected vehicle
+
+    // Listen for real-time updates on the selected vehicle
+    FirebaseFirestore.instance
+        .collection('vehicles')
+        .doc(vehicle.id)
+        .snapshots()
+        .listen((snapshot) {
+      if (snapshot.exists) {
+        final updatedVehicle = Vehicle.fromJson(snapshot.data()!);
+        setState(() {
+          _selectedVehicle = updatedVehicle;
+        });
+      } else {
+        setState(() {
+          _selectedVehicle = null;
+        });
+      }
+    });
   }
 
   Future<bool> _regNumberExists(String regNumber) async {
@@ -467,7 +421,7 @@ class _VehicleManagementViewState extends State<VehicleManagementView> {
                     // Add new vehicle using VehicleBloc
                     // ignore: use_build_context_synchronously
                     BlocProvider.of<VehicleBloc>(context)
-                        .add(CreateVehicle(vehicle: newVehicle));
+                        .add(CreateVehicle(newVehicle));
 
                     // Close the dialog
                     // ignore: use_build_context_synchronously
@@ -579,7 +533,7 @@ class _VehicleManagementViewState extends State<VehicleManagementView> {
                     // Update vehicle using VehicleBloc
                     // ignore: use_build_context_synchronously
                     BlocProvider.of<VehicleBloc>(context)
-                        .add(UpdateVehicle(vehicle: updatedVehicle));
+                        .add(UpdateVehicle(updatedVehicle));
 
                     // ignore: use_build_context_synchronously
                     Navigator.of(context).pop(); // Close the dialog
@@ -614,7 +568,7 @@ class _VehicleManagementViewState extends State<VehicleManagementView> {
               onPressed: () {
                 // Delete vehicle using VehicleBloc
                 BlocProvider.of<VehicleBloc>(context)
-                    .add(DeleteVehicle(vehicle: vehicle));
+                    .add(DeleteVehicle(vehicle));
 
                 Navigator.of(context).pop(); // Close the dialog
               },

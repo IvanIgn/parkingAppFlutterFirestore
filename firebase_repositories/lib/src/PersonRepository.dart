@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:shared/shared.dart';
+import 'package:flutter/foundation.dart';
 
 // String host = Platform.isAndroid ? 'http://10.0.2.2' : 'http://localhost';
 // String port = '8080';
@@ -62,12 +63,33 @@ class PersonRepository {
     return jsons.map((json) => Person.fromJson(json)).toList();
   }
 
-  Future<Person> deletePerson(String id) async {
-    final person = await getPersonById(id);
+  // Future<Person> deletePerson(String id) async {
+  //   final person = await getPersonById(id);
 
-    await db.collection("persons").doc(id).delete();
+  //   await db.collection("persons").doc(id).delete();
 
-    return person;
+  //   return person;
+  // }
+
+  Future<Person?> deletePerson(String id) async {
+    try {
+      // Check if the person exists before deleting
+      final personSnapshot = await db.collection("persons").doc(id).get();
+
+      if (!personSnapshot.exists) {
+        throw Exception("Person with ID $id does not exist");
+      }
+
+      // Delete person from Firestore
+      await db.collection("persons").doc(id).delete();
+
+      // Optionally, return the deleted person data or any success message
+      return Person.fromJson(
+          personSnapshot.data()!); // Return the person object if needed
+    } catch (e) {
+      debugPrint("Error deleting person: $e");
+      rethrow; // Rethrow error to propagate up to the caller
+    }
   }
 
   Future<Person> updatePerson(String id, Person person) async {

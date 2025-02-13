@@ -30,6 +30,14 @@ class _HomeViewState extends State<HomeView> {
 
     // Check authentication status on initialization
     context.read<AuthBloc>().add(CheckAuthStatus());
+    final authState = context.read<AuthBloc>().state;
+    if (authState is AuthAuthenticated) {
+      debugPrint('User is logged in: ${authState.name}');
+    } else if (authState is AuthLoggedOut) {
+      debugPrint('User is logged out');
+    } else {
+      debugPrint('User status unknown');
+    }
   }
 
   // Handle navigation between tabs

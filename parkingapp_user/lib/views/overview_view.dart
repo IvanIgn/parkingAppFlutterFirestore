@@ -1,3 +1,5 @@
+import 'package:firebase_repositories/firebase_repositories.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart'; // For BLoC
 import 'package:parkingapp_user/blocs/parking/parking_bloc.dart';
@@ -8,21 +10,60 @@ class OverviewView extends StatefulWidget {
   const OverviewView({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _OverviewViewState createState() => _OverviewViewState();
 }
 
 class _OverviewViewState extends State<OverviewView> {
   Parking? parkingInstance;
+  String? loggedInName;
+  String? loggedInPersonNum;
+  String? loggedInPersonId;
+  String? loggedInPersonEmail;
+  String? loggedInPersonAuthId;
+  // fetch current user
+
+  final user = FirebaseAuth.instance.currentUser;
+
+  final ParkingRepository repository = ParkingRepository.instance;
 
   @override
   void initState() {
     super.initState();
+    _checkFirebaseUser();
+    // _loadParkingByUserEmail();
     _loadParkingData();
-    // _refreshParkings();
+    _refreshParkings();
   }
+
+  void _checkFirebaseUser() {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      debugPrint('❌ No Firebase user is logged in!');
+      return;
+    } else {
+      debugPrint('✅ Firebase user is logged in: ${user.uid}');
+    }
+  }
+
+// // want to load parking data by user id using bloc
+//   Future<void> _loadParkingData() async {
+//     if (loggedInPersonAuthId != null) {
+//       context.read<ParkingBloc>().add(LoadParkingByPersonEmail(
+//           //onLoadActiveParkings
+//           parkingInstance!,
+//           loggedInPersonEmail ?? ''));
+//     } else {
+//       debugPrint('❌ loggedInPersonAuthEmail is null $loggedInPersonAuthId');
+//     }
+//   }
 
   Future<void> _loadParkingData() async {
     context.read<ParkingBloc>().add(LoadActiveParkings());
+  }
+
+  void _refreshParkings() {
+    BlocProvider.of<ParkingBloc>(context).add(LoadActiveParkings());
   }
 
   @override
@@ -84,8 +125,12 @@ class _OverviewViewState extends State<OverviewView> {
                         buildSectionTitle(context, 'Ägareinformation:'),
                         const SizedBox(height: 8),
                         if (parkingInstance.vehicle!.owner != null) ...[
+                          buildKeyValue('Ägarens ID',
+                              parkingInstance.vehicle!.owner!.authId),
                           buildKeyValue('Ägarens namn',
                               parkingInstance.vehicle!.owner!.name),
+                          buildKeyValue('Ägarens Email',
+                              parkingInstance.vehicle!.owner!.email),
                           buildKeyValue('Ägarens personnummer',
                               parkingInstance.vehicle!.owner!.personNumber),
                         ] else
@@ -116,13 +161,6 @@ class _OverviewViewState extends State<OverviewView> {
       ),
     );
   }
-
-  // void _refreshParkings() {
-  //   // if (parkingInstance?.vehicle?.owner != null) {
-  //   BlocProvider.of<ParkingBloc>(context).add(
-  //       LoadActiveParkings()); // Dispatch event to load active parkings from ParkingBloc
-  //   //s }
-  // }
 
   Widget buildSectionTitle(BuildContext context, String title) {
     return Text(

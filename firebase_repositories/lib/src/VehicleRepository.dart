@@ -7,8 +7,15 @@ class VehicleRepository {
   static VehicleRepository get instance => _instance;
   VehicleRepository._internal();
 
-  final db = FirebaseFirestore.instance; // Initialize FirebaseFirestore
+  final FirebaseFirestore db = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance; // Initialize FirebaseAuth
+
+  // 🔥 Real-time Firestore listener for vehicles collection
+  Stream<List<Vehicle>> vehicleStream() {
+    return db.collection('vehicles').snapshots().map((snapshot) {
+      return snapshot.docs.map((doc) => Vehicle.fromJson(doc.data())).toList();
+    });
+  }
 
   Future<Vehicle> createVehicle(Vehicle vehicle) async {
     //await Future.delayed(Duration(seconds: 5));
@@ -32,30 +39,6 @@ class VehicleRepository {
     return Vehicle.fromJson(json);
   }
 
-  // Future<List<Vehicle>> getVehiclesForLoggedInUserByID() async {
-  //   try {
-  //     final currentUser =
-  //         _auth.currentUser; // Get the current user (Firebase Auth)
-
-  //     if (currentUser == null) {
-  //       throw Exception('User not logged in');
-  //     }
-
-  //     // Query vehicles where the 'owner' field matches the logged-in user's ID (or personNumber)
-  //     final querySnapshot = await db
-  //         .collection('vehicles')
-  //         .where('owner.id', isEqualTo: currentUser.uid) // or use personNumber
-  //         .get();
-
-  //     // Convert the query snapshot into a list of Vehicle objects
-  //     return querySnapshot.docs.map((doc) {
-  //       return Vehicle.fromJson(doc.data()); // assuming fromJson method exists
-  //     }).toList();
-  //   } catch (e) {
-  //     throw Exception('Failed to load vehicles: $e');
-  //   }
-  // }
-
   Future<List<Vehicle>> getVehiclesForUser(String userId) async {
     try {
       final querySnapshot = await db
@@ -71,21 +54,6 @@ class VehicleRepository {
       throw Exception('Failed to load vehicles: $e');
     }
   }
-
-  // Future<List<Vehicle>> getAllVehicles() async {
-  //   final snapshots = await db.collection("vehicles").get();
-
-  //   final docs = snapshots.docs;
-
-  //   final jsons = docs.map((doc) {
-  //     final json = doc.data();
-  //     json["id"] = doc.id;
-
-  //     return json;
-  //   }).toList();
-
-  //   return jsons.map((json) => Vehicle.fromJson(json)).toList();
-  // }
 
   Future<List<Vehicle>> getAllVehicles() async {
     try {

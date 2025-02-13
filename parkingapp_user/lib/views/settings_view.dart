@@ -44,6 +44,8 @@ class SettingsView extends StatelessWidget {
                         json.decode(loggedInPersonJson) as Map<String, dynamic>;
                     final loggedInPersonId = loggedInPerson['id']?.toString();
 
+                    debugPrint('Logged in person ID: $loggedInPersonId');
+
                     if (loggedInPersonId != null) {
                       await PersonRepository.instance
                           .deletePerson(loggedInPersonId);
@@ -94,6 +96,7 @@ class SettingsView extends StatelessWidget {
                     isDarkModeNotifier.value = value; // Update the notifier
                     await prefs.setBool(
                         'isDarkMode', value); // Persist the preference
+                    // ignore: use_build_context_synchronously
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text(

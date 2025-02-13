@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:firebase_repositories/firebase_repositories.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:parkingapp_admin/blocs/person/person_bloc.dart';
-import '../blocs/person/person_bloc.dart';
 import 'package:shared/shared.dart';
 
 class ManagePersonsView extends StatefulWidget {

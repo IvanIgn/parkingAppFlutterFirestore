@@ -8,6 +8,16 @@ class LoadActiveParkings extends ParkingEvent {}
 
 class LoadNonActiveParkings extends ParkingEvent {}
 
+class LoadParkingByPersonEmail extends ParkingEvent {
+  final Parking parking;
+  final String userEmail;
+
+  LoadParkingByPersonEmail(this.parking, this.userEmail);
+
+  // List<Object> get props => [person, userId];
+  List<Object> get props => [userEmail];
+}
+
 class CreateParking extends ParkingEvent {
   final Parking parking;
 

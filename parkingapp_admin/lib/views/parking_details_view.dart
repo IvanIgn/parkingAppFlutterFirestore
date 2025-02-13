@@ -35,7 +35,10 @@ class ParkingDetailsView extends StatelessWidget {
             buildSectionTitle(context, 'Ägareinformation:'),
             const SizedBox(height: 8),
             if (parking.vehicle!.owner != null) ...[
+              buildKeyValue(
+                  'Ägarens ID', parking.vehicle!.owner!.authId.toString()),
               buildKeyValue('Ägarensnamn', parking.vehicle!.owner!.name),
+              buildKeyValue('Ägarens Email', parking.vehicle!.owner!.email),
               buildKeyValue(
                   'Ägarens personnummer', parking.vehicle!.owner!.personNumber),
             ] else

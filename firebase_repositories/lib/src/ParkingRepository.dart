@@ -34,6 +34,25 @@ class ParkingRepository {
     return Parking.fromJson(json);
   }
 
+  // load parking by user id
+  Future<List<Parking>> getParkingByUserEmail(String userEmail) async {
+    try {
+      final querySnapshot = await db
+          .collection('parkings')
+          .where('owner.email',
+              isEqualTo: userEmail) // Match with logged-in user ID
+          .get();
+
+      return querySnapshot.docs.map((doc) {
+        final data = doc.data();
+        data['email'] = doc.id;
+        return Parking.fromJson(data);
+      }).toList();
+    } catch (e) {
+      throw Exception('Failed to load active user parking by email: $e');
+    }
+  }
+
   Future<List<Parking>> getAllParkings() async {
     final snapshots = await db.collection("parkings").get();
 
