@@ -39,7 +39,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
       if (!userDoc.exists) {
         print("❌ No Firestore document found for user ID: ${firebaseUser.uid}");
-        emit(AuthError(
+        emit(const AuthError(
             errorMessage:
                 "Ingen användardata hittades. Vänligen kontakta supporten."));
         return;
@@ -66,7 +66,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     } catch (e) {
       print("⚠️ Error checking authentication status: $e");
       if (state is! AuthError) {
-        emit(AuthError(
+        emit(const AuthError(
             errorMessage: "Ett fel uppstod vid kontroll av inloggning."));
       }
     }
@@ -153,7 +153,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           .get();
 
       if (emailQuery.docs.isEmpty) {
-        emit(AuthError(
+        emit(const AuthError(
             errorMessage: "❌ Personen med detta email är inte registrerad."));
         return;
       }
@@ -164,7 +164,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
 
       User? firebaseUser = userCredential.user;
       if (firebaseUser == null) {
-        emit(AuthError(
+        emit(const AuthError(
             errorMessage: "❌ Inloggningsfel. Användare hittades inte."));
         return;
       }
@@ -176,7 +176,8 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
           .get();
 
       if (!userDoc.exists || userDoc.data() == null) {
-        emit(AuthError(errorMessage: "❌ Inga användare hittades i databasen."));
+        emit(const AuthError(
+            errorMessage: "❌ Inga användare hittades i databasen."));
         return;
       }
 
@@ -207,7 +208,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       ));
     } on FirebaseAuthException catch (e) {
       if (e.code == 'wrong-password') {
-        emit(AuthError(errorMessage: "❌ Lösenordet är fel."));
+        emit(const AuthError(errorMessage: "❌ Lösenordet är fel."));
       } else {
         emit(
             AuthError(errorMessage: "❌ Inloggning misslyckades: ${e.message}"));

@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:26248141827:android:7dbe6339d6fad9968a8236",
+        "mobilesdk_app_id": "1:26248141827:android:5f412e8eea34d5848a8236",
         "android_client_info": {
-          "package_name": "com.example.parkingapp_user"
+          "package_name": "com.example.parkingapp_user_android"
         }
       },
       "oauth_client": [],

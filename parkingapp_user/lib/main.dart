@@ -23,10 +23,13 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Initialize Firebase
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e) {
+    debugPrint('Firebase initialization error: $e');
+  }
   // Initialize hydrated storage
   final storage = await HydratedStorage.build(
     storageDirectory: kIsWeb
@@ -39,12 +42,16 @@ void main() async {
   isDarkModeNotifier.value = prefs.getBool('isDarkMode') ?? false;
 
   // Wrap the app with HydratedBlocOverrides in the same zone
-  HydratedBlocOverrides.runZoned(
-    () {
-      runApp(ParkingApp(prefs: prefs));
-    },
-    storage: storage,
-  );
+  // HydratedBlocOverrides.runZoned(
+  //   () {
+  //     runApp(ParkingApp(prefs: prefs));
+  //   },
+  //   storage: storage,
+  // );
+
+  HydratedBloc.storage = storage;
+
+  runApp(ParkingApp(prefs: prefs));
 }
 
 class ParkingApp extends StatelessWidget {
